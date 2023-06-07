@@ -1,0 +1,11 @@
+{
+    "client_msg_id": "4030bcf3-db28-450e-9b2b-5f572ec3ca6a",
+    "type": "app_mention",
+    "text": "<@U04JNBADD0Q> <@U04MY4B41RA>",
+    "user": "U04HYGN0CQK",
+    "ts": "1684812129.776549",
+    "blocks": [ { "type": "rich_text", "block_id": "tcO", "elements": ["Array"] } ],
+    "team": "T04JNB2C940",
+    "channel": "C04QAG1APH9",
+    "event_ts": "1684812129.776549"
+}

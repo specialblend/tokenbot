@@ -1,0 +1,6 @@
+(executable
+ (name tokenbot)
+ (public_name tokenbot)
+ (libraries engine fun red)
+ (modules tokenbot)
+ (modes exe))
