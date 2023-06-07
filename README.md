@@ -24,7 +24,7 @@ slack bot / social recognition platform
 
 ### running this project locally
 
-- :warn: slack app must be provisioned in workspace
+- :warning: slack app must be provisioned in workspace
   - socket mode must be enabled
   - oauth must be enabled
   - required oauth scopes:
@@ -33,7 +33,7 @@ slack bot / social recognition platform
     - reactions:write
     - users:read
 
-- :warn: **must** have a way to serve local instance over https
+- :warning: **must** have a way to serve local instance over https
   - because slack requires **https** oauth callback urls
   - could use [ngrok](https://ngrok.com/) - paid account works, free does not
 
