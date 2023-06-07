@@ -7,7 +7,7 @@ let display_name = User.profile ->: Profile.display_name
 
 let fmt_name user =
   [ display_name; real_name; name ]
-  ->. List.map (fun lens -> lens user)
+  ->. List.map (apply user)
   ->. List.filter_map String.trim_empty
   ->. List.head
   ->. default (User.id user)

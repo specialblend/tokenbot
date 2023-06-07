@@ -3,6 +3,7 @@
 let ( ++ ) = ( ^ )
 let ( ->. ) = ( |> )
 let ( ->: ) f g x = g (f x)
+let apply x fn = fn x
 
 let default x t =
   match t with
