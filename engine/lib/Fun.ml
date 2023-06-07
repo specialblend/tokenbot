@@ -75,8 +75,13 @@ module List = struct
 
   let dedupe_str t = sort_uniq String.compare t
   let fold l fn i = fold_left fn i l
-  let map_ignore fn = iter (fn ->: void)
+
+  let head = function
+    | h :: _ -> Some h
+    | _ -> None
+
   let includes = mem
+  let map_ignore fn = iter (fn ->: void)
   let reject fn l = filter (fun x -> not (fn x)) l
 
   let take n l =
