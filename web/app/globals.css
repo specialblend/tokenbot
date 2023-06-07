@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    height: 100%;
+}
+
+body {
+    color: #ccc;
+    background: #131313;
+}
+
+* {
+    font-weight: normal;
+    border-color: #202020;
+}
+
+.ink-dimmed {
+    color: #aaa;
+}
+
+.ink-muted {
+    color: #666;
+}
+
+.ink-fire {
+    color: #ffaf03;
+}
+
+.marker-dimmed {
+    background-color: #242424;
+}
+
+@screen sm {
+    .h-fill {
+        height: calc(100vh - 48px);
+        @apply overflow-hidden overflow-y-scroll;
+    }
+}
