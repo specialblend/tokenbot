@@ -1,0 +1,11 @@
+.scoreboard table {
+    @apply w-full table table-auto text-left;
+}
+
+.scoreboard td {
+    @apply pl-4 py-3 overflow-ellipsis overflow-hidden;
+}
+
+.scoreboard th {
+    @apply pl-4 py-2;
+}
