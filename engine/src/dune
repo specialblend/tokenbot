@@ -1,0 +1,10 @@
+(library
+ (name engine)
+ (libraries base64 clock dice fun red slack str unix)
+ (preprocess
+  (pps lwt_ppx ppx_deriving.show ppx_fields_conv ppx_regexp ppx_yojson_conv)))
+
+(env
+ (dev
+  (flags
+   (:standard -w -9))))
