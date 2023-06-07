@@ -3,7 +3,14 @@ open Slack
 open Slack.User
 
 let to_string = User.to_string
-let display_name = User.profile ->: Profile.display_name ->: String.trim_empty
+let display_name = User.profile ->: Profile.display_name
+
+let fmt_name user =
+  [ display_name; real_name; name ]
+  ->. List.map (fun lens -> lens user)
+  ->. List.filter_map String.trim_empty
+  ->. List.head
+  ->. default (User.id user)
 
 let normalize =
   String.lowercase_ascii ->: Str.global_replace (Str.regexp "[^A-Za-z]") ""
@@ -34,12 +41,7 @@ module DB = struct
     let key = scope id in
     Red.get db key ->. Option.map from_string
 
-  let get_name ~db =
-    get ~db
-    ->: Option.map
-          (Option.map_either display_name
-             (Option.map_either (real_name ->: String.trim_empty) name))
-
+  let get_name ~db = get ~db ->: Option.map fmt_name
   let get_is_bot ~db = get ~db ->: Option.map is_bot ->: default false
   let get_tz_offset ~db = get ~db ->: Option.map tz_offset
 
