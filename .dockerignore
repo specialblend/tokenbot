@@ -1,0 +1,4 @@
+engine/_build
+bot/node_modules
+web/node_modules
+web/.next
