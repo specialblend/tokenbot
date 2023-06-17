@@ -6,7 +6,7 @@ end
 
 type t = Item.t list [@@deriving show, yojson]
 
-let to_int = int_of_string_opt
+let int = int_of_string_opt
 let scope = Red.prefix "inventory"
 
 let exec deposit ~db =
@@ -21,7 +21,7 @@ let scan player ~db =
   let key = scope player in
   let pairs = Red.hgetall db key
   and from (token, qty) =
-    let qty' = default 0 (to_int qty) in
+    let qty' = default 0 (int qty) in
     (token, qty')
   in
   let items = List.map from pairs in
@@ -30,5 +30,5 @@ let scan player ~db =
 let get_qty player token ~db =
   let key = scope player in
   let qty = Red.hget db key token in
-  let qty' = (Option.flat_map to_int) qty in
+  let qty' = (Option.flat_map int) qty in
   default 0 qty'

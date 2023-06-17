@@ -7,8 +7,8 @@ open Cashier
 open Deposit
 
 let bonus_tokens = [ "🌮"; "🍻"; "☕️"; "🌶️" ]
-let pepper = Str.regexp {|.*:hot_pepper:.*|}
-let fire = Str.regexp {|.*:fire:.*|}
+let pepper_regex = Str.regexp {|.*:hot_pepper:.*|}
+let fire_regex = Str.regexp {|.*:fire:.*|}
 
 let base thx deposits _ =
   let sender, recipients = Thanks.parts thx in
@@ -22,7 +22,7 @@ let base thx deposits _ =
 
 let super thx deposits { db } =
   let sender = thx ->. sender in
-  if Msg.matches pepper thx.msg then
+  if Msg.matches pepper_regex thx.msg then
     if Cooldown.has "🌶️" sender ~db then
       let warning = Cooldown.warn sender "🌶️" in
       warning :: deposits
@@ -37,7 +37,7 @@ let super thx deposits { db } =
 
 let hyper thx deposits { db } =
   let sender = thx ->. sender in
-  if Msg.matches fire thx.msg then
+  if Msg.matches fire_regex thx.msg then
     if Cooldown.has "🔥" sender ~db then
       let warning = Cooldown.warn sender "🔥" in
       warning :: deposits

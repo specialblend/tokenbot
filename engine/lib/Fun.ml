@@ -128,11 +128,6 @@ module Option = struct
   include Option
 
   let flat_map f t = bind t f
-
-  let map_either f1 f2 t =
-    match f1 t with
-    | Some x -> x
-    | None -> f2 t
 end
 
 module Result = struct
@@ -144,8 +139,7 @@ end
 module String = struct
   include String
 
-  let trim_empty s =
-    match s with
+  let trim_empty = function
     | "" -> None
     | s -> Some s
 end
