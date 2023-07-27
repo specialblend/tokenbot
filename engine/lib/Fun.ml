@@ -1,5 +1,7 @@
 (* TODO move into own library package *)
 
+include Ppx_yojson_conv_lib.Yojson_conv.Primitives
+
 let ( ++ ) = ( ^ )
 let ( ->. ) = ( |> )
 let ( ->: ) f g x = g (f x)

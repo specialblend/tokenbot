@@ -1,5 +1,6 @@
 open Unix
 open Format
+open Fun
 
 type weekday =
   | Mon
