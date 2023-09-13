@@ -1,0 +1,35 @@
+{
+  "client_msg_id": "ab556aac-d821-4d7d-8cc9-ac04bbc542a2",
+  "type": "app_mention",
+  "text": "<@U05BJAR2W00> <@U04MY4B41RA>",
+  "user": "U04HYGN0CQK",
+  "ts": "1694308869.075959",
+  "blocks": [
+    {
+      "type": "rich_text",
+      "block_id": "Fko",
+      "elements": [
+        {
+          "type": "rich_text_section",
+          "elements": [
+            {
+              "type": "user",
+              "user_id": "U05BJAR2W00"
+            },
+            {
+              "type": "text",
+              "text": " "
+            },
+            {
+              "type": "user",
+              "user_id": "U04MY4B41RA"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "team": "T04JNB2C940",
+  "channel": "C04QAG1APH9",
+  "event_ts": "1694308869.075959"
+}

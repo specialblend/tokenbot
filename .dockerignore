@@ -1,0 +1,12 @@
+engine/_build
+bot/node_modules
+web/node_modules
+web/.next
+.idea
+.vscode
+.env
+.env.local
+**/**/.idea
+**/**/.vscode
+**/**/.env
+**/**/.env.local

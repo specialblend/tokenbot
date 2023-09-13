@@ -1,0 +1,3 @@
+run:
+  export $(xargs <.env) && \
+  cat msg.example.json | base64 | dune exec tokenbot msg

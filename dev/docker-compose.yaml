@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  redis:
+    restart: "no"
+    image: docker.io/bitnami/redis:7.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+    logging:
+      driver: none
+
+volumes:
+  redis_data:
+    driver: local

@@ -1,0 +1,8 @@
+(executable
+ (name tokenbot)
+ (public_name tokenbot)
+ (libraries tokenbot)
+ (modules tokenbot)
+ (modes exe)
+ (preprocess
+  (pps lwt_ppx)))

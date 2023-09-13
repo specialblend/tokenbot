@@ -1,0 +1,35 @@
+(lang dune 3.6)
+
+(name tokenbot)
+
+(generate_opam_files true)
+
+(source
+ (github specialblend/tokenbot))
+
+(authors "cj@specialblend.dev")
+
+(maintainers "cj@specialblend.dev")
+
+(package
+ (allow_empty)
+ (name tokenbot)
+ (description "Tokenbot engine")
+ (synopsis "Serverless binary comprising engine of tokenbot project")
+ (depends ocaml
+          dune
+          base64
+          cohttp
+          cohttp-lwt-unix
+          lwt_ppx
+          ppx_deriving
+          ppx_expect
+          ppx_fields_conv
+          ppx_inline_test
+          ppx_let
+          ppx_regexp
+          ppx_yojson_conv
+          redis-sync
+          tls-lwt
+          yojson
+ ))
