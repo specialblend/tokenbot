@@ -1,4 +1,4 @@
-import type { Stats } from "~/contract";
+import type { Player } from "~/contract";
 import type { ReactNode } from "react";
 
 import { JetBrainsMono } from "~/app/fonts";
@@ -13,7 +13,7 @@ function Stat({ children }: { children: ReactNode }) {
 }
 
 export function StatBadge({ label, stat }: { label: string; stat: number }) {
-  let style = stat > 0 ? "" : "ink-muted";
+  const style = stat > 0 ? "" : "ink-muted";
   return (
     <div className={`pr-16 pb-4 items-center ${style}`}>
       <Stat>{stat}</Stat>
@@ -22,13 +22,10 @@ export function StatBadge({ label, stat }: { label: string; stat: number }) {
   );
 }
 
-export function StatsTable({ stats }: { stats: Stats }) {
-  let { bonus, luck, greed } = stats;
+export function StatsTable({ player }: { player: Player }) {
   return (
     <div className="lg:flex">
-      <StatBadge label="🔥 Bonus" stat={bonus} />
-      <StatBadge label="🍀 Luck" stat={luck} />
-      <StatBadge label="🎃 Greed" stat={greed} />
+      <StatBadge label="🍀 Luck" stat={player.luck} />
     </div>
   );
 }

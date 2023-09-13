@@ -1,3 +1,5 @@
+import type { Qty, Token } from "~/contract";
+
 import { JetBrainsMono } from "~/app/fonts";
 
 function style(token: string) {
@@ -18,11 +20,11 @@ export function DepositBadge({
   qty,
   about,
 }: {
-  token: string;
-  qty: number;
+  token: Token;
+  qty: Qty;
   about?: string;
 }) {
-  let qty_ = qty >= 0 ? qty : `(${qty})`;
+  const qty_ = qty >= 0 ? qty : `(${qty})`;
   return (
     <span className={JetBrainsMono.className}>
       <span className="text-xl">{token}</span>

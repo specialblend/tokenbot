@@ -1,12 +1,11 @@
 import type { Player } from "~/contract";
 
-import { getUser } from "~/io/engine";
 import { ScoreboardEntry } from "~/app/components/Scoreboard/ScoreboardEntry";
 
 import "~/app/globals.css";
 import "./Scoreboard.css";
 
-export async function Scoreboard({
+export function Scoreboard({
   players,
   me,
   useHighscore,
@@ -15,7 +14,7 @@ export async function Scoreboard({
   me?: Player;
   useHighscore?: boolean;
 }) {
-  let playersIncludeMe = players.some((player) => player.id === me?.id);
+  const playersIncludeMe = players.some((player) => player.id === me?.id);
   return (
     <div className="scoreboard h-fill">
       <table>
@@ -28,12 +27,11 @@ export async function Scoreboard({
           </tr>
         </thead>
         <tbody>
-          {players.map(async (player, key) => (
+          {players.map((player, key) => (
             <ScoreboardEntry
               key={key}
               rank={key + 1}
               player={player}
-              user={await getUser(player.id)}
               useHighscore={useHighscore}
             />
           ))}
@@ -42,13 +40,7 @@ export async function Scoreboard({
               <tr>
                 <td className="ink-muted">...</td>
               </tr>
-              {me && (
-                <ScoreboardEntry
-                  player={me}
-                  user={await getUser(me.id)}
-                  className="text-amber-400"
-                />
-              )}
+              {me && <ScoreboardEntry player={me} className="text-amber-400" />}
             </>
           )}
         </tbody>

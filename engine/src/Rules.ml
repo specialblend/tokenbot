@@ -1,143 +1,198 @@
 open Fun
-open Clock
-open List
-open Math
-open Thanks
-open Cashier
-open Deposit
+open Fun.Infix_syntax
+open System
 
-let bonus_tokens = [ "🌮"; "🍻"; "☕️"; "🌶️" ]
-let pepper_regex = Str.regexp {|.*:hot_pepper:.*|}
-let fire_regex = Str.regexp {|.*:fire:.*|}
+(**)
+module Deposit = Thanks.Deposit
 
-let base thx deposits _ =
-  let sender, recipients = Thanks.parts thx in
-  let ticket =
-    let qty = List.length recipients in
-    give ~qty sender "🏷️" "receipt"
-  in
-  recipients
-  ->. map (fun player -> give player "🌮" "thanks")
-  ->. append (ticket :: deposits)
-
-let super thx deposits { db } =
-  let sender = thx ->. sender in
-  if Msg.matches pepper_regex thx.msg then
-    if Cooldown.has "🌶️" sender ~db then
-      let warning = Cooldown.warn sender "🌶️" in
-      warning :: deposits
-    else
-      let cooldown = Duration.hours 8 in
+module Collection = struct
+  let base thx deposits =
+    let sender, recipients = Thanks.parts thx in
+    let givable_tokens =
       thx
-      ->. recipients
-      ->. map (fun player -> give ~cooldown player "🌶️" "super thanks")
-      ->. append deposits
-  else
-    deposits
+      |> Thanks.tokens
+      |> Lst.filter Token.givable
+      |> Lst.sort_uniq String.compare
+      |> Lst.touch [ Token.fallback "🌮" ]
+    in
+    let give players token =
+      let cooldown = Token.cooldown token in
+      Lst.map (fun player -> Deposit.give player token ?cooldown) players
+    in
+    let check token =
+      match Player.cooldown token sender with
+      | None -> give recipients token
+      | Some cooldown ->
+          let warning =
+            let about = Item.Cooldown.describe (token, cooldown) in
+            Deposit.give sender "⚠️" ~about
+          in
+          warning :: give recipients (Token.fallback token)
+    in
+    let receipt =
+      let qty = Lst.length recipients in
+      Deposit.give sender "🏷️" ~qty
+    in
+    givable_tokens
+    |> Lst.concat_map check
+    |> Lst.cons receipt
+    |> Lst.append deposits
 
-let hyper thx deposits { db } =
-  let sender = thx ->. sender in
-  if Msg.matches fire_regex thx.msg then
-    if Cooldown.has "🔥" sender ~db then
-      let warning = Cooldown.warn sender "🔥" in
-      warning :: deposits
+  let monday thx deposits =
+    let is_monday player =
+      let now = Thanks.local_time thx player in
+      Clock.weekday now = Clock.Mon
+    in
+    thx
+    |> Thanks.recipients
+    |> Lst.filter (fun player -> is_monday player)
+    |> Lst.map (fun player -> Deposit.give player "☕️" ~about:"monday")
+    |> Lst.append deposits
+
+  let friday thx deposits =
+    let is_friday player =
+      let now = Thanks.local_time thx player in
+      Clock.weekday now = Clock.Fri
+    in
+    thx
+    |> Thanks.recipients
+    |> Lst.filter (fun player -> is_friday player)
+    |> Lst.map (fun player -> Deposit.give player "🍻" ~about:"TGIF")
+    |> Lst.append deposits
+
+  let happy_hour thx deposits =
+    let is_happy_hour player =
+      let now = Thanks.local_time thx player in
+      Clock.hour now |> between (16, 18)
+    in
+    thx
+    |> Thanks.everyone
+    |> Lst.filter (fun player -> is_happy_hour player)
+    |> Lst.map (fun player -> Deposit.give player "🍻" ~about:"happy hour")
+    |> Lst.append deposits
+
+  let st_paddy thx deposits =
+    let is_st_paddy player =
+      let now = Thanks.local_time thx player in
+      Clock.month now = 3 && Clock.mday now |> between (17, 18)
+    in
+    thx
+    |> Thanks.everyone
+    |> Lst.filter (fun player -> is_st_paddy player)
+    |> Lst.map (fun player -> Deposit.give player "🍀" ~about:"st paddy")
+    |> Lst.append deposits
+
+  let halloween thx deposits =
+    let is_halloween player =
+      let now = Thanks.local_time thx player in
+      Clock.month now = 10 && Clock.mday now >= 21
+    in
+    thx
+    |> Thanks.everyone
+    |> Lst.filter (fun player -> is_halloween player)
+    |> Lst.map (fun player -> Deposit.give player "🎃" ~about:"trick or treat")
+    |> Lst.append deposits
+
+  let holiday_season thx deposits =
+    let is_holiday_season player =
+      let now = Thanks.local_time thx player in
+      Clock.month now = 12 && Clock.mday now >= 21
+    in
+    thx
+    |> Thanks.everyone
+    |> Lst.filter (fun player -> is_holiday_season player)
+    |> Lst.map (fun player -> Deposit.give player "🎁" ~about:"happy holidays")
+    |> Lst.append deposits
+
+  let navruz thx deposits =
+    let is_navruz player =
+      let now = Thanks.local_time thx player in
+      Clock.month now = 3 && Clock.mday now >= 21
+    in
+    thx
+    |> Thanks.everyone
+    |> Lst.filter (fun player -> is_navruz player)
+    |> Lst.map (fun player -> Deposit.give player "🔥" ~about:"happy navruz")
+    |> Lst.append deposits
+
+  let lucky thx deposits ~dice =
+    let r = dice 100 in
+    thx
+    |> Thanks.recipients
+    |> Lst.filter (fun player -> Player.luck player > r)
+    |> Lst.map (fun player -> Deposit.give player "🎁" ~about:"luck bonus")
+    |> Lst.append deposits
+
+  let gift_box thx deposits ~dice =
+    let is_gift_box = function
+      | "🎁", qty when qty >= 1 -> true
+      | _ -> false
+    in
+    let sender = Thanks.sender thx in
+    let open_box _item =
+      let qty = 5 in
+      let tokens = Token.roll_many Token.luck_bonus ~dice ~qty in
+      let items = tokens |> Lst.map Item.make |> Lst.fold_left Item.stack [] in
+      let got =
+        Lst.map
+          (fun (token, qty) -> Deposit.give sender token ~qty ~about:"bonus")
+          items
+      in
+      let opened = Deposit.give sender "🎁" ~qty:(-1) ~about:"opened" in
+      opened :: got
+    in
+    sender
+    |> Player.items
+    |> Lst.filter (fun item -> is_gift_box item)
+    |> Lst.concat_map (fun item -> open_box item)
+    |> Lst.append deposits
+
+  let self_penalty thx deposits =
+    let sender, recipients = Thanks.parts thx in
+    if Lst.mem sender recipients then
+      let penalize player =
+        Deposit.give player "💀" ~about:"self-mention penalty"
+      in
+      let forfeit player = Lst.reject (Deposit.belongs_to player) in
+      penalize sender :: forfeit sender deposits
     else
-      let cooldown = Duration.hours 120 in
-      thx
-      ->. recipients
-      ->. map (fun player -> give ~cooldown player "🔥" "hyper thanks")
-      ->. append deposits
-  else
-    deposits
+      deposits
 
-let happy_hour thx deposits { db } =
-  let now = Player.time thx ~db in
-  thx
-  ->. everyone
-  ->. filter (fun player -> hour (now player) ->. between (16, 18))
-  ->. map (fun player -> give player "🍻" "happy hour")
-  ->. append deposits
+  let init ~dice =
+    [
+      base;
+      monday;
+      friday;
+      happy_hour;
+      st_paddy;
+      lucky ~dice;
+      gift_box ~dice;
+      self_penalty;
+    ]
+end
 
-let monday thx deposits { db } =
-  let now = Player.time thx ~db in
-  thx
-  ->. recipients
-  ->. filter (fun player -> weekday (now player) == Mon)
-  ->. map (fun player -> give player "☕️" "monday")
-  ->. append deposits
+module Exchange = struct
+  let do_exchange ?about player ~take:(token1, qty1) ~give:(token2, qty2) =
+    let about = about |? "exchange" in
+    [
+      Deposit.give player token1 ~qty:(-qty1) ~about;
+      Deposit.give player token2 ~qty:qty2 ~about;
+    ]
 
-let friday thx deposits { db } =
-  let now = Player.time thx ~db in
-  thx
-  ->. everyone
-  ->. filter (fun player -> weekday (now player) == Fri)
-  ->. map (fun player -> give player "🍻" "TGIF")
-  ->. append deposits
+  let exchange_item player =
+    let xchg = do_exchange player in
+    function
+    | "🌮", qty when qty >= 50 -> xchg ~take:("🌮", 50) ~give:("🔥", 1)
+    | "☕️", qty when qty >= 25 -> xchg ~take:("☕", 25) ~give:("🔥", 1)
+    | "🌶️", qty when qty >= 10 -> xchg ~take:("🌶️", 10) ~give:("🔥", 1)
+    | "🍻", qty when qty >= 25 -> xchg ~take:("🍻", 25) ~give:("🍀", 1)
+    | "🏷️", qty when qty >= 100 -> xchg ~take:("🏷️", 100) ~give:("🎁", 1)
+    | "⚠️", qty when qty >= 3 -> xchg ~take:("⚠️", 3) ~give:("💀", 1)
+    | _ -> []
 
-let st_paddy thx deposits { db } =
-  let now = Player.time thx ~db in
-  thx
-  ->. everyone
-  ->. filter (fun player -> Holiday.is_stpaddy (now player))
-  ->. map (fun player -> give player ~qty:5 "🍻" "st. paddy")
-  ->. append deposits
-
-let halloween thx deposits { db } =
-  let now = Player.time thx ~db in
-  thx
-  ->. recipients
-  ->. filter (fun player -> Holiday.is_halloween (now player))
-  ->. map (fun player -> give player "🎃" "trick or treat")
-  ->. append deposits
-
-let self_penalty thx deposits _ =
-  let sender, recipients = parts thx in
-  if recipients ->. includes sender then
-    deposits
-    ->. reject (fun deposit -> deposit.target = sender)
-    ->. append [ give sender "💀" "self-mention penalty" ]
-  else
-    deposits
-
-let luck_bonus thx deposits { db; dice } =
-  let roll = dice 100 in
-  let token = Tokens.(roll bonus_tokens ~dice) in
-  thx
-  ->. recipients
-  ->. filter (fun player -> Stats.get_luck player ~db > roll)
-  ->. map (fun player -> give player token "luck bonus")
-  ->. append deposits
-
-let exchange_tacos = Cashier.exchange_fixed ("🌮", 50) ("🔥", 1)
-let exchange_peppers = Cashier.exchange_fixed ("🌶️", 10) ("🔥", 1)
-let exchange_coffees = Cashier.exchange_fixed ("☕", 25) ("🔥", 1)
-let exchange_beers = Cashier.exchange_fixed ("🍻", 25) ("🍀", 1)
-
-let exchange_tickets =
-  let roll_token player { dice } =
-    let token = Tokens.roll bonus_tokens ~dice in
-    [ give player token "exchange" ]
-  in
-  Cashier.exchange ("🏷️", 50) ~use:roll_token
-
-let exchange_warnings = Cashier.exchange_fixed ("⚠️", 3) ("💀", 1)
-
-let rules =
-  [
-    base;
-    super;
-    hyper;
-    happy_hour;
-    monday;
-    friday;
-    st_paddy;
-    halloween;
-    luck_bonus;
-    exchange_tacos;
-    exchange_peppers;
-    exchange_coffees;
-    exchange_beers;
-    exchange_tickets;
-    exchange_warnings;
-    self_penalty;
-  ]
+  let exchange =
+    Lst.concat_map (fun player ->
+        player
+        |> Player.items
+        |> Lst.concat_map (fun item -> exchange_item player item))
+end

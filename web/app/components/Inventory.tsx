@@ -9,10 +9,10 @@ export function ItemBadge({ item: [token, qty] }: { item: Item }) {
   );
 }
 
-export function Inventory({ inventory }: { inventory: Item[] }) {
+export function Inventory({ items }: { items: Item[] }) {
   return (
     <div className="flex-nowrap">
-      {inventory.map((item, key) => (
+      {items.map((item, key) => (
         <ItemBadge key={key} item={item} />
       ))}
     </div>

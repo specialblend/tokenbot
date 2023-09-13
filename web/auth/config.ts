@@ -1,16 +1,15 @@
 import type { JWT } from "next-auth/jwt";
 import type { NextAuthOptions } from "next-auth";
 
-import { pickMe } from "~/util/fmt";
 import { getUser } from "~/io/engine";
 import { slackProvider } from "~/auth/slackProvider";
 
-export let authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account }): Promise<JWT> {
       if (account && token.sub) {
-        let user = await getUser(token.sub);
-        if (user) token.me = pickMe(user);
+        const user = await getUser(token.sub);
+        if (user) token.me = user;
       }
       return token;
     },
@@ -26,3 +25,5 @@ export let authOptions: NextAuthOptions = {
     signIn: "/signin",
   },
 };
+
+console.debug({ pid: process.pid }, "auth/config.ts", __filename);

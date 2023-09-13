@@ -1,44 +1,93 @@
-# 🔥tokenbot
+# 🔥 tokenbot
 
 slack bot / social recognition platform
 
-**project status:** code complete, not deployed
+### 🚀 .env config
 
-### features
+```dotenv
+# engine/.env
+SLACK_BOT_TOKEN="xoxb-example"
+```
 
-- players send thanks to one or more players by mentioning this bot (`@thanks`) and other users in slack
-- players may also receive bonus tokens according to [preset rules](engine/src/Rules.ml)
-- web ui shows scoreboard and activity feed
+```dotenv
+# bot/.env
+SLACK_APP_TOKEN="xapp-example"
+SLACK_BOT_TOKEN="xoxb-example"
+```
 
-### components
-- engine: handles all business logic and interaction with db
-- bot: listens for slack app mentions over websocket
-- web: web app shows scoreboard, activity feed, rules, etc
+```dotenv
+# web/.env
+NEXTAUTH_SECRET=changeme
+NEXTAUTH_URL="https://example123.ngrok/api/auth"
 
-### architecture
-- db: redis
-- auth: slack oauth
-- engine: serverless binary compiled from ocaml
-- bot: node.js thin client queues (bee-queue) incoming messages and pipes them to engine over stdin
-- web: next.js 13 project uses app router
+SLACK_BOT_TOKEN="xoxb-example"
+SLACK_CLIENT_ID=example
+SLACK_CLIENT_SECRET=example
+SLACK_TEAM_ID=example
+```
 
-### running this project locally
+### 📦 run inside docker
 
-- :warning: slack app must be provisioned in workspace
-  - socket mode must be enabled
-  - oauth must be enabled
-  - required oauth scopes:
-    - app_mentions:read
-    - chat:write
-    - reactions:write
-    - users:read
+```bash
+# build and run container
+docker compose build
+docker compose up
 
-- :warning: **must** have a way to serve local instance over https
-  - because slack requires **https** oauth callback urls
-  - could use [ngrok](https://ngrok.com/) - paid account works, free does not
+# serve app over https
+ngrok http 3000 --domain example123.ngrok.io
 
-- fork `.env.example` files into `.env`
-- set app & bot tokens (from slack app) in `.env`
-- set client id and secret (from slack app) in `.env`
-- run `docker compose up`
-- serve port 3000 over https
+# access web app
+open https://example123.ngrok.io/
+```
+
+### 🔥 local dev
+
+```bash
+# https://docs.docker.com/compose/
+cd dev
+
+# start redis
+docker compose up
+````
+
+```bash
+# https://ocaml.org/docs/up-and-running
+cd engine
+
+# setup opam environment
+opam switch create 5.0.0  
+eval $(opam env --switch=5.0.0)
+
+# install dependencies
+opam install -y --deps-only .
+
+# build project
+dune build
+
+# run tests
+dune test
+
+```
+
+```bash
+# https://nodejs.dev/en/learn/how-to-install-nodejs/
+cd bot
+
+# install dependencies
+npm install
+
+# start slack bot
+npm run dev
+
+```
+
+```bash
+# https://nextjs.org/docs
+cd web
+
+# install dependencies
+npm install
+
+# start web app
+npm run dev
+```

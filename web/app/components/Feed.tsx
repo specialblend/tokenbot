@@ -1,115 +1,104 @@
-import type { Deposit, Feed, Thanks, User } from "~/contract";
+import type { Thanks } from "~/contract";
+import type { PlayerDeposits } from "~/contract";
 
 import * as timeago from "timeago.js";
 import Link from "next/link";
 
-import { fmtUserName, timestamp } from "~/util/fmt";
-import { getUser } from "~/io/engine";
-import { Txn } from "~/contract";
-import { Quote } from "~/app/components/Quote";
+import { timestamp } from "~/util/fmt";
+import { fromShortcode } from "~/util/emoji";
 import { DepositBadge } from "~/app/components/DepositBadge";
 
-function Deposits({ deposits }: { deposits: Deposit[] }) {
-  return (
-    <>
-      {deposits.map((deposit, key) => (
-        <div key={key} className="text-sm">
-          <DepositBadge {...deposit} />
-        </div>
-      ))}
-    </>
-  );
+function fmtMentions(thanks: Thanks) {
+  let text = `${thanks.msg.text}`;
+  const ids = text.match(/<@(\w+)>/g)?.map((s) => s.slice(2, -1));
+  ids?.forEach((id) => {
+    const player = thanks.player_deposits.find(
+      ([player_]) => player_.id === id,
+    )?.[0];
+    // TODO: this is a hack
+    const repl = player?.name ?? "thanks";
+    text = text.replace(`<@${id}>`, `@${repl}`);
+  });
+  return text;
 }
 
-function DiffBadge(props: { diff?: number }) {
-  let { diff } = props;
-  if (typeof diff === "number") {
-    if (diff > 0) return <span className="text-lime-500">+{diff}</span>;
-    if (diff < 0) return <span className="text-red-500">{diff}</span>;
-  }
-  return null;
+function fmtEmojis(text_: string) {
+  let text = `${text_}`;
+  const shortcodes = text.match(/:([a-z0-9_]+):/g)?.map((s) => s.slice(1, -1));
+  shortcodes?.forEach((shortcode: string) => {
+    text = text.replace(`:${shortcode}:`, fromShortcode(shortcode) || "");
+  });
+  return text;
 }
 
-function TxnHeader({
-  id,
-  name,
-  diff,
+function fmtText(thanks: Thanks) {
+  return fmtEmojis(fmtMentions(thanks));
+}
+
+function PlayerDepositsContainer({
+  playerDeposits,
 }: {
-  id: string;
-  name?: string;
-  diff?: number;
+  playerDeposits: PlayerDeposits[];
 }) {
-  let href = `/player/${id}`;
   return (
     <>
-      <Link href={href}>
-        <span className="text-3xl font-light text-amber-400 hover:text-white">
-          @{name || id}
-        </span>
-      </Link>
-      <span className="px-2 text-lg">
-        <DiffBadge diff={diff} />
-      </span>
+      {playerDeposits.map(([player, deposits], key) => {
+        return (
+          <div key={key} className={"py-2"}>
+            <div>
+              <Link href={`/player/${player.id}`}>
+                <span className="px-1 text-xl font-light ink-fire bg-carbon-400 rounded">
+                  @{player.name}
+                </span>
+              </Link>
+            </div>
+            <>
+              {deposits.map((deposit, key_) => {
+                const {
+                  item: [token, qty],
+                  about,
+                } = deposit;
+                return (
+                  <div key={key_} className="text-sm">
+                    <DepositBadge token={token} qty={qty} about={about} />
+                  </div>
+                );
+              })}
+            </>
+          </div>
+        );
+      })}
     </>
   );
 }
 
-function Txn(props: {
-  txn: Txn;
-  thanks: Thanks;
-  diffs: Map<string, number>;
-  user?: User;
-  sender?: User;
-}) {
-  let { thanks, txn, diffs, user, sender } = props;
-  let [id, deposits] = txn;
-  let name = fmtUserName(id, user);
-  let diff = diffs.get(id);
-  let time = timeago.format(timestamp(thanks));
+function Txn({ thanks }: { thanks: Thanks }) {
+  const time = timeago.format(timestamp(thanks));
   return (
     <div className="py-6 px-8 border-b border-primary">
-      <TxnHeader id={id} name={name} diff={diff} />
       <div className="ink-dimmed py-2">
-        <Quote>{thanks.text}</Quote>
+        <div className={`p-2 bg-carbon-500 rounded text-lg`}>
+          {fmtText(thanks)}
+        </div>
       </div>
       <div className="ink-muted text-sm">
         {time} from
-        <Link href={`/player/${thanks.sender}`}>
-          <span className="px-1 ink-dimmed">@{fmtUserName(id, sender)}</span>
+        <Link href={`/player/${thanks.sender.id}`}>
+          <span className="px-1 ink-dimmed">@{thanks.sender.name}</span>
         </Link>
       </div>
       <div className="py-2">
-        <Deposits deposits={deposits} />
+        <PlayerDepositsContainer playerDeposits={thanks.player_deposits} />
       </div>
     </div>
   );
 }
 
-export function Feed({
-  data,
-  allowZero,
-  _getUser = getUser,
-}: {
-  data: Feed;
-  allowZero?: boolean;
-  _getUser?: typeof getUser;
-}) {
+export function Feed({ data }: { data: Thanks[] }) {
   return (
     <>
       {data.flatMap((thanks, key) => {
-        let diffs = new Map(thanks.diffs);
-
-        return thanks.txns
-          .filter(([id]) => allowZero || diffs.get(id))
-          .map(async (txn) => {
-            let [id] = txn;
-            let [user, sender] = await Promise.all([
-              _getUser(id),
-              _getUser(thanks.sender),
-            ]);
-            let props = { thanks, txn, diffs, user, sender };
-            return <Txn key={key} {...props} />;
-          });
+        return <Txn key={key} thanks={thanks} />;
       })}
     </>
   );

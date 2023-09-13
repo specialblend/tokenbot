@@ -1,53 +1,78 @@
 open Fun
 
-type t = {
-  id: string;
-  score: int;
-  highscore: int;
-  inventory: Inventory.t;
-  stats: Stats.t;
-}
-[@@deriving show, yojson]
+module Score = struct
+  type t = {
+    base: int; [@default 0]
+    bonus: int; [@default 0]
+    total: int; [@default 0]
+  }
+  [@@deriving ord, fields, make, show { with_path = false }, yojson]
 
-let to_string = Json.stringify ~yojson_of_t
+  let sum = List.fold_left ( + ) 0
+  let stack1 fn (token, qty) = fn token * qty
+  let stack fn items = List.map (stack1 fn) items
+  let points = stack Token.points >> sum >> max 0
+  let bonus = stack Token.bonus >> sum >> clamp (0, 100)
+  let luck = stack Token.luck >> sum >> clamp (0, 100)
 
-module Players = struct
-  type l = t list [@@deriving show, yojson]
-  type t = l [@@deriving show, yojson]
-
-  let to_string = Json.stringify ~yojson_of_t
+  let score items =
+    let base = points items in
+    let bonus = base * bonus items / 100 in
+    let total = base + bonus in
+    { base; bonus; total }
 end
 
-let time thx player ~db =
-  let offset = User.DB.get_tz_offset player ~db in
-  Msg.tm Thanks.(thx.msg) ?offset
+module Player = struct
+  type t = {
+    id: string; [@main]
+    name: string; [@default "player"]
+    tz_offset: int; [@default 0]
+    items: Item.t list; [@default []]
+    cooldowns: Item.Cooldown.t list; [@default []]
+    score: Score.t; [@default Score.make ()]
+    highscore: int; [@default 0]
+    luck: int; [@default 0]
+    is_bot: bool; [@default false]
+  }
+  [@@deriving ord, fields, make, show { with_path = false }, yojson]
 
-module DB = struct
-  let scan id ~db =
-    let inventory = Inventory.scan id ~db in
-    let stats = Stats.calc inventory in
-    let score = Score.calc stats inventory in
-    let highscore = Score.get_highscore id score ~db in
-    { id; score; highscore; inventory; stats }
+  let of_slack_user Slack.User.{ id; name; tz_offset; is_bot } =
+    make id ~name ~tz_offset ~is_bot
 
-  let search q ~count ~db =
-    User.DB.search q ~count ~db
-    ->. List.reject (User.DB.get_is_bot ~db)
-    ->. List.map (scan ~db)
+  (**)
+  let id_eq id player = player.id = id
+  let is player t = id_eq t.id player
 
-  let publish player ~db =
-    let { id; stats; score; highscore } = player in
+  (**)
+  let cooldown token t = List.assoc_opt token t.cooldowns
+  let luck t = Score.luck t.items
+  let total_score = score >> Score.total
 
-    Stats.publish id stats ~db;
-    Score.publish id score highscore ~db;
+  let part_sender sender_id players =
+    match List.partition (id_eq sender_id) players with
+    | sender :: _, recipients -> Some (sender, recipients)
+    | _ -> None
 
-    let key = Red.prefix "player" id
-    and value = to_string player in
+  (**)
+  let with_cooldowns fn t = { t with cooldowns = fn t.cooldowns }
+  let with_items fn t = { t with items = fn t.items }
 
-    void (Red.set db key value);
-    player
+  (**)
+  let recalculate t =
+    let score = Score.score t.items
+    and luck = Score.luck t.items in
+    let highscore = max t.highscore score.total in
+    { t with score; highscore; luck }
 
-  let scan_publish id ~db =
-    let player = scan id ~db in
-    publish player ~db
+  module Summary = struct
+    type t = {
+      id: string;
+      name: string;
+    }
+    [@@deriving ord, show { with_path = false }, yojson]
+  end
+
+  let summary { id; name } = { Summary.id; name }
 end
+
+include Player

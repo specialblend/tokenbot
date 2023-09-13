@@ -17,7 +17,7 @@ import { useDismiss } from "~/app/(hooks)/useDismiss";
 import "./Navbar.css";
 
 function isActive(href: string) {
-  let pathname = usePathname();
+  const pathname = usePathname();
   if (href === "/") {
     return href === pathname;
   }
@@ -33,7 +33,7 @@ function NavBarItem({
   onClick?: () => void;
   children: ReactNode;
 }) {
-  let style = isActive(href) ? "navbar-tab-active" : "";
+  const style = isActive(href) ? "navbar-tab-active" : "";
   return (
     <Link href={href} className="navbar-link">
       <div
@@ -88,9 +88,9 @@ function ProfileBtn({
 }
 
 export function Navbar() {
-  let [isOpen, setIsOpen] = useState(false);
-  let Toggle = () => setIsOpen(!isOpen);
-  let { data: session } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const Toggle = () => setIsOpen(!isOpen);
+  const { data: session } = useSession();
 
   useDismiss(() => setIsOpen(false));
 

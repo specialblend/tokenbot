@@ -9,9 +9,10 @@ import { Spinner } from "~/app/components/Spinner";
 export default function SignInPage() {
   void useSearchParams(); // disable static render
 
-  let { status } = useSession();
-  let router = useRouter();
-  if (status === "unauthenticated") {
+  const session = useSession();
+  const router = useRouter();
+
+  if (session.status === "unauthenticated") {
     return (
       <div className="h-32">
         <button

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Quote } from "~/app/components/Quote";
+import { InlineQuote } from "~/app/components/Quote";
 import { DepositBadge } from "~/app/components/DepositBadge";
 
 export function Rules() {
@@ -8,23 +8,21 @@ export function Rules() {
     <div className="p-6">
       <Graph
         label="Send thanks in Slack"
-        left={<Quote>@thanks @alice</Quote>}
+        left={<InlineQuote>@thanks @alice</InlineQuote>}
         right={<DepositBadge token="🌮" qty={1} />}
       />
 
       <Graph
         label="Max recipients: 10"
-        left={<Quote>@thanks @alice @bob</Quote>}
+        left={<InlineQuote>@thanks @alice @bob</InlineQuote>}
         right={<DepositBadge token="🌮" qty={1} />}
       />
 
       <Graph
         label="Super thanks (cooldown: 8 hrs)"
-        left={<Quote>@thanks @alice 🌶️</Quote>}
+        left={<InlineQuote>@thanks @alice 🌶️</InlineQuote>}
         right={
           <>
-            <DepositBadge token="🌮" qty={1} />
-            <Plus />
             <DepositBadge token="🌶️" qty={1} />
           </>
         }
@@ -32,11 +30,9 @@ export function Rules() {
 
       <Graph
         label="Hyper thanks (cooldown: 120 hrs)"
-        left={<Quote>@thanks @alice 🔥</Quote>}
+        left={<InlineQuote>@thanks @alice 🔥</InlineQuote>}
         right={
           <>
-            <DepositBadge token="🌮" qty={1} />
-            <Plus />
             <DepositBadge token="🔥" qty={1} />
           </>
         }
@@ -44,7 +40,7 @@ export function Rules() {
 
       <Graph
         label="Monday bonus"
-        left={<Quote>@thanks @alice</Quote>}
+        left={<InlineQuote>@thanks @alice</InlineQuote>}
         right={
           <>
             <DepositBadge token="🌮" qty={1} />
@@ -56,7 +52,7 @@ export function Rules() {
 
       <Graph
         label="Friday bonus"
-        left={<Quote>@thanks @alice</Quote>}
+        left={<InlineQuote>@thanks @alice</InlineQuote>}
         right={
           <>
             <DepositBadge token="🌮" qty={1} />
@@ -68,7 +64,7 @@ export function Rules() {
 
       <Graph
         label="[Free-for-all] Happy hour (4-5p)"
-        left={<Quote>@thanks @alice</Quote>}
+        left={<InlineQuote>@thanks @alice</InlineQuote>}
         right={
           <>
             <DepositBadge token="🌮" qty={1} />
@@ -103,8 +99,14 @@ export function Rules() {
       />
 
       <Graph
-        left={<DepositBadge token="🏷️" qty={50} />}
-        right={<DepositBadge token="❓" qty={1} />}
+        left={<DepositBadge token="🏷️" qty={100} />}
+        right={<DepositBadge token="❓" qty={5} />}
+        label="Token Exchange"
+      />
+
+      <Graph
+        left={<DepositBadge token="🎁" qty={1} />}
+        right={<DepositBadge token="🎁" qty={1} />}
         label="Token Exchange"
       />
 
@@ -129,12 +131,6 @@ export function Rules() {
       <Graph
         left={<DepositBadge token="🍀" qty={1} />}
         right={<span className="ink-base text-base">+20% luck</span>}
-        label="Token Bonus"
-      />
-
-      <Graph
-        left={<DepositBadge token="🎃" qty={1} />}
-        right={<span className="ink-base text-base">+20% greed</span>}
         label="Token Bonus"
       />
 

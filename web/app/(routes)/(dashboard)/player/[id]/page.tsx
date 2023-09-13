@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
-import { fmtUserName } from "~/util/fmt";
-import { getFeedAbout, getPlayer, getUser } from "~/io/engine";
+import { getFeedAbout, getPlayer } from "~/io/engine";
 import { JetBrainsMono } from "~/app/fonts";
 import { StatsTable } from "~/app/components/StatsTable";
 import { SplitFeedView } from "~/app/components/SplitFeedView";
@@ -55,32 +54,32 @@ function Block({ children }: { children: ReactNode }) {
 
 export default async function PlayerPage(
   { params: { id } }: PageProps,
-  f = { getUser, getPlayer },
+  f = { getPlayer },
 ) {
-  let [user, player] = await Promise.all([f.getUser(id), f.getPlayer(id)]);
+  const player = await f.getPlayer(id);
 
   if (!player) return null;
 
-  let { inventory, highscore, score, stats } = player;
-  let feed = await getFeedAbout(id, 25);
+  const { items, highscore, score } = player;
+  const feed = await getFeedAbout(id, 25);
 
   return (
-    <SplitFeedView feed={feed} allowZero={true}>
+    <SplitFeedView feed={feed}>
       <div>
         <div className="py-4">
           <Block>
-            <div className="text-4xl font-light">@{fmtUserName(id, user)}</div>
+            <div className="text-4xl font-light">@{player.name}</div>
             <div className="py-4">
-              <Inventory inventory={inventory} />
+              <Inventory items={items} />
             </div>
           </Block>
           <Block>
             <Header>Score</Header>
-            <Scores score={score} highscore={highscore} />
+            <Scores score={score.total} highscore={highscore} />
           </Block>
           <Block>
             <Header>Stats</Header>
-            <StatsTable stats={stats} />
+            <StatsTable player={player} />
           </Block>
         </div>
       </div>

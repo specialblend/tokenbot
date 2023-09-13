@@ -7,8 +7,8 @@ import { isAppSession } from "~/auth/session";
 import { authOptions } from "~/auth/config";
 
 export async function getMyPlayer(): Promise<Player | undefined> {
-  let session = await getServerSession(authOptions);
-  if (isAppSession(session)) {
-    return getPlayer(session.me.id);
-  }
+  const session = await getServerSession(authOptions);
+  if (isAppSession(session) && session.me.id) return getPlayer(session.me.id);
 }
+
+console.debug({ pid: process.pid }, "io/player.ts", __filename);

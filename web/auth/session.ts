@@ -1,14 +1,17 @@
-import type { Me } from "~/contract";
+import type { User } from "~/contract";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
 export type AppSession = Session & {
-  me: Me;
+  me: User & { id: string };
 };
 
 export function isAppSession(x?: JWT | Session | null): x is AppSession {
-  if (x) {
-    return "me" in x;
-  }
-  return false;
+  return !!(
+    x &&
+    Reflect.has(x, "me") &&
+    Reflect.has(Reflect.get(x, "me") as object, "id")
+  );
 }
+
+console.debug({ pid: process.pid }, "auth/session.ts", __filename);

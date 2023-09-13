@@ -48,7 +48,7 @@ export function Item({
   onClick?: () => void;
   children: ReactNode;
 }) {
-  let router = useRouter();
+  const router = useRouter();
   return (
     <div
       className="p-4 hover:bg-carbon-500 border-b border-carbon-200"
@@ -73,7 +73,6 @@ export function Menu({
   isOpen: boolean;
 }) {
   if (isAppSession(session)) {
-    let href = `/player/${session.me.id}`;
     return (
       <div
         className={`sm:fixed right-0 overflow-hidden transition-all duration-250 ease ${
@@ -81,7 +80,7 @@ export function Menu({
         }`}
       >
         <div className="bg-carbon-400 w-screen sm:w-72">
-          <Item href={href}>
+          <Item href={`/player/${session.me.id}`}>
             <UserBadge appSession={session} />
           </Item>
           <Item href="/" onClick={() => void signOut()}>

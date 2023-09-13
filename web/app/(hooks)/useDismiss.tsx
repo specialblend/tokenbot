@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 export function useKeyboardDismiss(handler: () => void) {
-  let handleKey = (event: KeyboardEvent) => {
+  const handleKey = (event: KeyboardEvent) => {
     if (event.key === "Escape") handler();
   };
   useEffect(() => {
