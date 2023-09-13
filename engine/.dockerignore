@@ -1,9 +1,0 @@
-_build
-test
-Dockerfile
-.ocamlformat
-package.json
-tokenbot.opam
-.turbo
-.idea
-.env
