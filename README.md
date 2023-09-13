@@ -91,3 +91,11 @@ npm install
 # start web app
 npm run dev
 ```
+
+```
+# serve app over https (required)
+ngrok http 3000 --domain example123.ngrok.io
+
+# access web app
+open https://example123.ngrok.io/
+```
