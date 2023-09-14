@@ -5,20 +5,20 @@ module Cooldown = Item.Cooldown
 
 module DB = struct
   let scan_cooldowns player ~db =
-    let parse_cooldowns list =
-      let parse = Json.parse_opt Cooldown.t_of_yojson in
+    let parse cooldowns =
+      let parse1 = Json.parse_opt Cooldown.t_of_yojson in
       List.filter_map
         (function
           | None -> None
-          | Some cooldown -> parse cooldown)
-        list
+          | Some cooldown -> parse1 cooldown)
+        cooldowns
     in
     player
     |> Player.id
     |> Format.sprintf "cooldown:%s:*"
     |> Redis.scan_pattern db ~count:32
     |> Result.flat_map (Redis.mget_safe db)
-    |> Result.map parse_cooldowns
+    |> Result.map (fun cooldowns -> parse cooldowns)
 
   let set_cooldowns Player.{ id; cooldowns } ~db =
     let set cooldown =
