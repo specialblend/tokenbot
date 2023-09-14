@@ -1,8 +1,7 @@
 open Fun
-open Format
 
 module Deposit = struct
-  let fmt_about fmt = fprintf fmt "\"%s\""
+  let fmt_about fmt = Fmt.fprintf fmt "\"%s\""
 
   type t = {
     player: Player.t;
@@ -81,8 +80,8 @@ module Thanks = struct
       tokens;
       player_deposits =
         deposits
-        |> List.map Deposit.summary
-        |> List.group_by Deposit.Summary.player;
+        |> Lst.map Deposit.summary
+        |> Lst.group_by Deposit.Summary.player;
     }
 end
 

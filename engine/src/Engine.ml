@@ -9,22 +9,22 @@ type rule = Thanks.t -> Deposit.t list -> Deposit.t list
 
 module Cashier = struct
   let collect_deposits thanks ~(rules : rule list) =
-    rules |> List.fold_left (fun deposits rule -> rule thanks deposits) []
+    rules |> Lst.fold_left (fun deposits rule -> rule thanks deposits) []
 
   let stack_items deposits items =
     deposits
-    |> List.map Deposit.item
-    |> List.fold_left Item.stack items
-    |> List.map (fun (token, qty) -> (token, max 0 qty))
+    |> Lst.map Deposit.item
+    |> Lst.fold_left Item.stack items
+    |> Lst.map (fun (token, qty) -> (token, max 0 qty))
 
   let stack_cooldowns deposits cooldowns =
     deposits
-    |> List.filter_map Deposit.token_cooldown
-    |> List.fold_left Item.stack cooldowns
-    |> List.map (fun (token, qty) -> (token, max 0 qty))
+    |> Lst.filter_map Deposit.token_cooldown
+    |> Lst.fold_left Item.stack cooldowns
+    |> Lst.map (fun (token, qty) -> (token, max 0 qty))
 
   let distribute deposits player =
-    let deposits = deposits |> List.filter (Deposit.belongs_to player) in
+    let deposits = deposits |> Lst.filter (Deposit.belongs_to player) in
     player |> Player.with_items (stack_items deposits) |> Player.recalculate
 
   let execute thx ~rules ~exchange =
@@ -32,7 +32,7 @@ module Cashier = struct
     let everyone = sender :: recipients in
 
     let collected = collect_deposits thx ~rules in
-    let players_tmp = everyone |> List.map (distribute collected) in
+    let players_tmp = everyone |> Lst.map (distribute collected) in
     let exchanged = exchange players_tmp in
 
     let deposits = exchanged @ collected in
@@ -42,7 +42,7 @@ module Cashier = struct
       |> Player.with_cooldowns (stack_cooldowns deposits)
       |> distribute deposits
     in
-    let recipients = recipients |> List.map (distribute deposits) in
+    let recipients = recipients |> Lst.map (distribute deposits) in
 
     { thx with sender; recipients; deposits }
 end
@@ -63,13 +63,13 @@ module Receptionist = struct
   let parse_mentions text =
     text
     |> split_words
-    |> List.filter_map (fun word -> parse_mention word)
+    |> Lst.filter_map (fun word -> parse_mention word)
     |> Str.dedupe
 
   let parse_emojis text =
     text
     |> split_words
-    |> List.filter_map (fun word -> parse_emoji word)
+    |> Lst.filter_map (fun word -> parse_emoji word)
     |> Str.dedupe
 
   let mention player = fmt "<@%s>" (Player.id player)
@@ -88,16 +88,13 @@ module Receptionist = struct
         |> fmt "%s `x%s %s (cooldown: %s)`" token q about
 
   let fmt_group (player, deposits) =
-    deposits
-    |> List.map fmt_deposit
-    |> List.cons (mention player)
-    |> List.cons ""
+    deposits |> Lst.map fmt_deposit |> Lst.cons (mention player) |> Lst.cons ""
 
   let fmt_thanks thanks =
     thanks
     |> Thanks.deposits
-    |> List.group_by Deposit.player
-    |> List.concat_map fmt_group
+    |> Lst.group_by Deposit.player
+    |> Lst.concat_map fmt_group
     |> String.concat "\n"
 
   let notify thx ~token =
@@ -129,9 +126,9 @@ module Engine = struct
     let*? sender = user in
     let recipients =
       mentions
-      |> List.reject Player.is_bot
-      |> List.sort_uniq Player.compare
-      |> List.take 10
+      |> Lst.reject Player.is_bot
+      |> Lst.sort_uniq Player.compare
+      |> Lst.take 10
     in
     Thanks.make id ~msg ~tokens ~sender ~recipients
 
@@ -145,10 +142,10 @@ module Engine = struct
     in
     msg
     |> construct
-    |> Lwt.map (Option.to_res (Failure "invalid message"))
-    |> Lwt.map (Result.map (fun thanks -> execute thanks))
-    |> Lwt.map (Result.tap (fun thanks -> publish thanks))
-    |> Lwt_result.flat_map (fun thanks -> notify thanks)
+    |> Lwt.map (Opt.to_res (Failure "invalid message"))
+    |> Lwt.map (Res.map (fun thanks -> execute thanks))
+    |> Lwt.map (Res.tap (fun thanks -> publish thanks))
+    |> Lwt_res.flat_map (fun thanks -> notify thanks)
 end
 
 include Engine

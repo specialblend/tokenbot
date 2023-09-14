@@ -28,4 +28,4 @@ let lpush_rotate key ~id ~db ~limit =
     | len when len >= limit -> ltrim db key 0 len
     | _ -> Ok ()
   in
-  lpush db key [ id ] |> Result.flat_map trim
+  lpush db key [ id ] |> Res.flat_map trim
