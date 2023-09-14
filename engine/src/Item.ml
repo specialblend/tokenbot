@@ -35,11 +35,11 @@ module Item = struct
 
   let stack items (token, qty) =
     let qty' =
-      match List.assoc_opt token items with
+      match Lst.assoc_opt token items with
       | Some q -> qty + q
       | None -> qty
     in
-    (token, qty') :: List.remove_assoc token items
+    (token, qty') :: Lst.remove_assoc token items
 end
 
 include Item

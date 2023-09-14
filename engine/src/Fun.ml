@@ -166,3 +166,11 @@ module Let_syntax = struct
   let ( let@?* ) x f = Lwt.map (Option.flat_map f) x
   let ( and@?* ) = ( and@? )
 end
+
+module Arr = Array
+module Fmt = Format
+module Jsn = Json
+module Lst = List
+module Opt = Option
+module Res = Result
+module Lwt_res = Lwt_result

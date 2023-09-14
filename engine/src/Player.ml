@@ -8,9 +8,9 @@ module Score = struct
   }
   [@@deriving ord, fields, make, show { with_path = false }, yojson]
 
-  let sum = List.fold_left ( + ) 0
+  let sum = Lst.fold_left ( + ) 0
   let stack1 fn (token, qty) = fn token * qty
-  let stack fn = List.map (stack1 fn)
+  let stack fn = Lst.map (stack1 fn)
   let points = stack Token.points >> sum >> max 0
   let bonus = stack Token.bonus >> sum >> clamp (0, 100)
   let luck = stack Token.luck >> sum >> clamp (0, 100)
@@ -44,12 +44,12 @@ module Player = struct
   let is player t = id_eq t.id player
 
   (**)
-  let cooldown token t = List.assoc_opt token t.cooldowns
+  let cooldown token t = Lst.assoc_opt token t.cooldowns
   let luck t = Score.luck t.items
   let total_score = score >> Score.total
 
   let part_sender sender_id players =
-    match List.partition (id_eq sender_id) players with
+    match Lst.partition (id_eq sender_id) players with
     | sender :: _, recipients -> Some (sender, recipients)
     | _ -> None
 

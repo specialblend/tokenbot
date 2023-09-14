@@ -30,7 +30,7 @@ module Response = struct
       | Ok { error = Some err } -> Error (Failed err)
       | Ok { error = None } -> Error (Failed "unknown error")
     in
-    Result.flat_map expect_ok
+    Res.flat_map expect_ok
 end
 
 module User = struct
@@ -67,7 +67,7 @@ module AppMention = struct
   [@@deriving ord, fields, make, show { with_path = false }, yojson]
   [@@yojson.allow_extra_fields]
 
-  let parse_json = Json.parse t_of_yojson
+  let parse_json = Jsn.parse t_of_yojson
 end
 
 module AuthTest = struct
@@ -85,7 +85,7 @@ module AuthTest = struct
     let uri = Uri.of_string "https://slack.com/api/auth.test"
     and headers = Request.headers token in
     let@ data = Fetch.get_json ~uri ~headers in
-    data |> R.parse_ok |> Result.flat_map (trap t_of_yojson)
+    data |> R.parse_ok |> Res.flat_map (trap t_of_yojson)
 end
 
 module AddReaction = struct
@@ -107,7 +107,7 @@ module AddReaction = struct
     and json = yojson_of_t t in
 
     let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> R.parse_ok |> Result.map ignore
+    data |> R.parse_ok |> Res.map ignore
 end
 
 module PostMessage = struct
@@ -124,7 +124,7 @@ module PostMessage = struct
     and json = yojson_of_t t in
 
     let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> R.parse_ok |> Result.map ignore
+    data |> R.parse_ok |> Res.map ignore
 
   let reply text parent =
     let channel = AppMention.channel parent
@@ -145,6 +145,6 @@ module UserInfo = struct
     let@ data = Fetch.get_json ~uri ~headers in
     data
     |> R.parse_ok
-    |> Result.flat_map (trap t_of_yojson)
-    |> Result.map (fun { user } -> user)
+    |> Res.flat_map (trap t_of_yojson)
+    |> Res.map (fun { user } -> user)
 end

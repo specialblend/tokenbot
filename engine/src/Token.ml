@@ -1,3 +1,4 @@
+open Fun
 open System
 
 (**)
@@ -67,10 +68,10 @@ let givable = function
 let luck_bonus = [ "🌮"; "🍻"; "☕️"; "🎃"; "🌶️"; "🔥"; "🍀"; "🍉" ]
 
 let roll_one tokens ~dice =
-  let tokens = Array.of_list tokens in
-  let n = Array.length tokens in
+  let tokens = Arr.of_list tokens in
+  let n = Arr.length tokens in
   let i = dice n - 1 in
-  try Array.get tokens i with
+  try Arr.get tokens i with
   | _ -> "🌮"
 
 let roll_many tokens ~qty ~dice =
