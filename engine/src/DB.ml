@@ -26,11 +26,11 @@ module DB = struct
     in
     Result.all (List.map set cooldowns)
 
-  let with_scan_cooldowns player ~db =
-    let*! c = scan_cooldowns player ~db in
-    Player.{ player with cooldowns = c }
-
   let get_player id ~db =
+    let with_scan_cooldowns player ~db =
+      let*! c = scan_cooldowns player ~db in
+      Player.{ player with cooldowns = c }
+    in
     let parse = function
       | None -> Ok None
       | Some data ->
