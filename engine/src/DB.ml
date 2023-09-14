@@ -26,15 +26,15 @@ module DB = struct
       | keys -> mget keys
     in
     let parse_cooldowns =
-      let parse1 = Jsn.parse_opt Cooldown.t_of_yojson in
-      List.filter_map (Opt.flat_map parse1)
+      let parse1 = Json.parse_opt Cooldown.t_of_yojson in
+      List.filter_map (Option.flat_map parse1)
     in
     player
     |> Player.id
     |> fmt "cooldown:%s:*"
     |> scan_pattern db ~count:32
-    |> Res.flat_map (mget db)
-    |> Res.map parse_cooldowns
+    |> Result.flat_map (mget db)
+    |> Result.map parse_cooldowns
 
   let set_cooldowns Player.{ id; cooldowns } ~db =
     let setex = trap3 (Red.setex db) in
@@ -42,10 +42,10 @@ module DB = struct
       let token, ttl = cooldown in
       let key = fmt "cooldown:%s:%s" id token in
       cooldown
-      |> Jsn.stringify Cooldown.yojson_of_t
-      |> Res.flat_map (setex key ttl)
+      |> Json.stringify Cooldown.yojson_of_t
+      |> Result.flat_map (setex key ttl)
     in
-    Res.all (List.map set cooldowns)
+    Result.all (List.map set cooldowns)
 
   let with_scan_cooldowns player ~db =
     let*! c = scan_cooldowns player ~db in
@@ -57,11 +57,11 @@ module DB = struct
       | None -> Ok None
       | Some data ->
           data
-          |> Jsn.parse Player.t_of_yojson
-          |> Res.flat_map (with_scan_cooldowns ~db)
-          |> Res.map (fun player -> Some player)
+          |> Json.parse Player.t_of_yojson
+          |> Result.flat_map (with_scan_cooldowns ~db)
+          |> Result.map (fun player -> Some player)
     in
-    fmt "player:%s" id |> get |> Res.flat_map parse
+    fmt "player:%s" id |> get |> Result.flat_map parse
 
   let fetch_player id ~token =
     let@! user = Slack.UserInfo.get id ~token in
@@ -71,17 +71,17 @@ module DB = struct
     let set = trap2 (Red.set db) in
     let key = fmt "player:%s" (Player.id player) in
     player
-    |> Jsn.stringify Player.yojson_of_t
-    |> Res.flat_map (set key)
-    |> Res.map ignore
-    |> Res.flat_map (fun () -> set_cooldowns player ~db)
+    |> Json.stringify Player.yojson_of_t
+    |> Result.flat_map (set key)
+    |> Result.map ignore
+    |> Result.flat_map (fun () -> set_cooldowns player ~db)
 
   let lookup_player ~token ~db id =
     match get_player id ~db with
     | Ok (Some player) -> Lwt.return (Some player)
     | _ ->
         let@ res = fetch_player id ~token in
-        let*? player = Res.to_option res in
+        let*? player = Result.to_option res in
         let _ = set_player player ~db in
         player
 
@@ -92,7 +92,7 @@ module DB = struct
       | len when len >= limit -> ltrim len
       | _ -> Ok ()
     in
-    lpush [ id ] |> Res.flat_map trim
+    lpush [ id ] |> Result.flat_map trim
 
   let lpush_thanks thx ~db =
     let id = Thanks.id thx in
@@ -106,16 +106,16 @@ module DB = struct
     |> Thanks.everyone
     |> List.map push
     |> List.cons (lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
-    |> Res.all
+    |> Result.all
 
   let set_thanks thx ~db =
     let set = trap2 (Red.set db) in
     let key = fmt "thanks:%s" (Thanks.id thx) in
     thx
     |> Thanks.summary
-    |> Jsn.stringify Thanks.Summary.yojson_of_t
-    |> Res.flat_map (set key)
-    |> Res.map ignore
+    |> Json.stringify Thanks.Summary.yojson_of_t
+    |> Result.flat_map (set key)
+    |> Result.map ignore
 
   let zadd_scores players ~db =
     let zadd = trap2 (Red.zadd db) in
@@ -135,7 +135,7 @@ module DB = struct
     let*! () = lpush_thanks thx ~db
     and*! () = set_thanks thx ~db
     and*! () = zadd_scores players ~db
-    and*! () = players |> List.map (set_player ~db) |> Res.all in
+    and*! () = players |> List.map (set_player ~db) |> Result.all in
     ()
 end
 

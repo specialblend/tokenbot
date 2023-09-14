@@ -11,13 +11,13 @@ module Collection = struct
     let givable_tokens =
       thx
       |> Thanks.tokens
-      |> Lst.filter Token.givable
-      |> Lst.sort_uniq String.compare
-      |> Lst.touch [ Token.fallback "🌮" ]
+      |> List.filter Token.givable
+      |> List.sort_uniq String.compare
+      |> List.touch [ Token.fallback "🌮" ]
     in
     let give players token =
       let cooldown = Token.cooldown token in
-      Lst.map (fun player -> Deposit.give player token ?cooldown) players
+      List.map (fun player -> Deposit.give player token ?cooldown) players
     in
     let check token =
       match Player.cooldown token sender with
@@ -30,13 +30,13 @@ module Collection = struct
           warning :: give recipients (Token.fallback token)
     in
     let receipt =
-      let qty = Lst.length recipients in
+      let qty = List.length recipients in
       Deposit.give sender "🏷️" ~qty
     in
     givable_tokens
-    |> Lst.concat_map check
-    |> Lst.cons receipt
-    |> Lst.append deposits
+    |> List.concat_map check
+    |> List.cons receipt
+    |> List.append deposits
 
   let monday thx deposits =
     let is_monday player =
@@ -45,9 +45,9 @@ module Collection = struct
     in
     thx
     |> Thanks.recipients
-    |> Lst.filter (fun player -> is_monday player)
-    |> Lst.map (fun player -> Deposit.give player "☕️" ~about:"monday")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_monday player)
+    |> List.map (fun player -> Deposit.give player "☕️" ~about:"monday")
+    |> List.append deposits
 
   let friday thx deposits =
     let is_friday player =
@@ -56,9 +56,9 @@ module Collection = struct
     in
     thx
     |> Thanks.recipients
-    |> Lst.filter (fun player -> is_friday player)
-    |> Lst.map (fun player -> Deposit.give player "🍻" ~about:"TGIF")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_friday player)
+    |> List.map (fun player -> Deposit.give player "🍻" ~about:"TGIF")
+    |> List.append deposits
 
   let happy_hour thx deposits =
     let is_happy_hour player =
@@ -67,9 +67,9 @@ module Collection = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.filter (fun player -> is_happy_hour player)
-    |> Lst.map (fun player -> Deposit.give player "🍻" ~about:"happy hour")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_happy_hour player)
+    |> List.map (fun player -> Deposit.give player "🍻" ~about:"happy hour")
+    |> List.append deposits
 
   let st_paddy thx deposits =
     let is_st_paddy player =
@@ -78,9 +78,9 @@ module Collection = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.filter (fun player -> is_st_paddy player)
-    |> Lst.map (fun player -> Deposit.give player "🍀" ~about:"st paddy")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_st_paddy player)
+    |> List.map (fun player -> Deposit.give player "🍀" ~about:"st paddy")
+    |> List.append deposits
 
   let halloween thx deposits =
     let is_halloween player =
@@ -89,9 +89,9 @@ module Collection = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.filter (fun player -> is_halloween player)
-    |> Lst.map (fun player -> Deposit.give player "🎃" ~about:"trick or treat")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_halloween player)
+    |> List.map (fun player -> Deposit.give player "🎃" ~about:"trick or treat")
+    |> List.append deposits
 
   let holiday_season thx deposits =
     let is_holiday_season player =
@@ -100,9 +100,9 @@ module Collection = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.filter (fun player -> is_holiday_season player)
-    |> Lst.map (fun player -> Deposit.give player "🎁" ~about:"happy holidays")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_holiday_season player)
+    |> List.map (fun player -> Deposit.give player "🎁" ~about:"happy holidays")
+    |> List.append deposits
 
   let navruz thx deposits =
     let is_navruz player =
@@ -111,17 +111,17 @@ module Collection = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.filter (fun player -> is_navruz player)
-    |> Lst.map (fun player -> Deposit.give player "🔥" ~about:"happy navruz")
-    |> Lst.append deposits
+    |> List.filter (fun player -> is_navruz player)
+    |> List.map (fun player -> Deposit.give player "🔥" ~about:"happy navruz")
+    |> List.append deposits
 
   let lucky thx deposits ~dice =
     let r = dice 100 in
     thx
     |> Thanks.recipients
-    |> Lst.filter (fun player -> Player.luck player > r)
-    |> Lst.map (fun player -> Deposit.give player "🎁" ~about:"luck bonus")
-    |> Lst.append deposits
+    |> List.filter (fun player -> Player.luck player > r)
+    |> List.map (fun player -> Deposit.give player "🎁" ~about:"luck bonus")
+    |> List.append deposits
 
   let gift_box thx deposits ~dice =
     let is_gift_box = function
@@ -132,9 +132,9 @@ module Collection = struct
     let open_box _item =
       let qty = 5 in
       let tokens = Token.roll_many Token.luck_bonus ~dice ~qty in
-      let items = tokens |> Lst.map Item.make |> Lst.fold_left Item.stack [] in
+      let items = tokens |> List.map Item.make |> List.fold_left Item.stack [] in
       let got =
-        Lst.map
+        List.map
           (fun (token, qty) -> Deposit.give sender token ~qty ~about:"bonus")
           items
       in
@@ -143,17 +143,17 @@ module Collection = struct
     in
     sender
     |> Player.items
-    |> Lst.filter (fun item -> is_gift_box item)
-    |> Lst.concat_map (fun item -> open_box item)
-    |> Lst.append deposits
+    |> List.filter (fun item -> is_gift_box item)
+    |> List.concat_map (fun item -> open_box item)
+    |> List.append deposits
 
   let self_penalty thx deposits =
     let sender, recipients = Thanks.parts thx in
-    if Lst.mem sender recipients then
+    if List.mem sender recipients then
       let penalize player =
         Deposit.give player "💀" ~about:"self-mention penalty"
       in
-      let forfeit player = Lst.reject (Deposit.belongs_to player) in
+      let forfeit player = List.reject (Deposit.belongs_to player) in
       penalize sender :: forfeit sender deposits
     else
       deposits
@@ -191,8 +191,8 @@ module Exchange = struct
     | _ -> []
 
   let exchange =
-    Lst.concat_map (fun player ->
+    List.concat_map (fun player ->
         player
         |> Player.items
-        |> Lst.concat_map (fun item -> exchange_item player item))
+        |> List.concat_map (fun item -> exchange_item player item))
 end

@@ -38,7 +38,7 @@ module Str = struct
   let dedupe l = List.sort_uniq String.compare l
 end
 
-module Lst = struct
+module List = struct
   include List
 
   let head = function
@@ -73,7 +73,7 @@ module Lst = struct
     | l -> l
 end
 
-module Opt = struct
+module Option = struct
   include Option
 
   let both x y =
@@ -89,7 +89,7 @@ module Opt = struct
     | None -> Error e
 end
 
-module Res = struct
+module Result = struct
   include Result
 
   let both x y =
@@ -101,27 +101,27 @@ module Res = struct
   let all l = List.fold_left (fun acc x -> bind acc (always x)) (Ok ()) l
   let flat_map f t = bind t f
   let tap fn = map (fun x -> fn x |> always x)
-  let from_opt = Opt.to_res
+  let from_opt = Option.to_res
 end
 
-module Lwt_res = struct
+module Lwt_result = struct
   include Lwt_result
 
   let flat_map f t = bind t f
 end
 
 (**)
-module Jsn = struct
+module Json = struct
   module J = Yojson.Safe
 
   let from_str = trap J.from_string
   let from_str_opt = trap_opt J.from_string
   let to_str = trap J.to_string
   let to_str_opt = trap_opt J.to_string
-  let parse decoder = from_str >> Res.flat_map (trap decoder)
-  let parse_opt decoder = from_str_opt >> Opt.flat_map (trap_opt decoder)
-  let stringify encoder = trap encoder >> Res.flat_map to_str
-  let stringify_opt encoder = trap_opt encoder >> Opt.flat_map to_str_opt
+  let parse decoder = from_str >> Result.flat_map (trap decoder)
+  let parse_opt decoder = from_str_opt >> Option.flat_map (trap_opt decoder)
+  let stringify encoder = trap encoder >> Result.flat_map to_str
+  let stringify_opt encoder = trap_opt encoder >> Option.flat_map to_str_opt
 end
 
 module Infix_syntax = struct
@@ -144,24 +144,24 @@ module Let_syntax = struct
   let ( and* ) = Lwt.Syntax.( and* )
 
   (**)
-  let ( let*! ) x f = Res.map f x
-  let ( and*! ) = Res.both
-  let ( let*!! ) = Res.bind
+  let ( let*! ) x f = Result.map f x
+  let ( and*! ) = Result.both
+  let ( let*!! ) = Result.bind
 
   (**)
-  let ( let*? ) x f = Opt.map f x
-  let ( and*? ) = Opt.both
-  let ( let*?? ) = Opt.bind
+  let ( let*? ) x f = Option.map f x
+  let ( and*? ) = Option.both
+  let ( let*?? ) = Option.bind
 
   (**)
-  let ( let@! ) x f = Lwt.map (Res.map f) x
-  let ( and@! ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Res.both a b) y)
-  let ( let@!* ) x f = Lwt.map (Res.flat_map f) x
+  let ( let@! ) x f = Lwt.map (Result.map f) x
+  let ( and@! ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Result.both a b) y)
+  let ( let@!* ) x f = Lwt.map (Result.flat_map f) x
   let ( and@!* ) = ( and@! )
 
   (**)
-  let ( let@? ) x f = Lwt.map (Opt.map f) x
-  let ( and@? ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Opt.both a b) y)
-  let ( let@?* ) x f = Lwt.map (Opt.flat_map f) x
+  let ( let@? ) x f = Lwt.map (Option.map f) x
+  let ( and@? ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Option.both a b) y)
+  let ( let@?* ) x f = Lwt.map (Option.flat_map f) x
   let ( and@?* ) = ( and@? )
 end

@@ -96,7 +96,7 @@ module Receptionist = struct
   let fmt_thanks thanks =
     thanks
     |> Thanks.deposits
-    |> Lst.group_by Deposit.player
+    |> List.group_by Deposit.player
     |> List.concat_map fmt_group
     |> String.concat "\n"
 
@@ -129,9 +129,9 @@ module Engine = struct
     let*? sender = user in
     let recipients =
       mentions
-      |> Lst.reject Player.is_bot
-      |> Lst.sort_uniq Player.compare
-      |> Lst.take 10
+      |> List.reject Player.is_bot
+      |> List.sort_uniq Player.compare
+      |> List.take 10
     in
     Thanks.make id ~msg ~tokens ~sender ~recipients
 
@@ -145,10 +145,10 @@ module Engine = struct
     in
     msg
     |> construct
-    |> Lwt.map (Opt.to_res (Failure "invalid message"))
-    |> Lwt.map (Res.map execute)
-    |> Lwt.map (Res.tap publish)
-    |> Lwt_res.flat_map tap_notify
+    |> Lwt.map (Option.to_res (Failure "invalid message"))
+    |> Lwt.map (Result.map execute)
+    |> Lwt.map (Result.tap publish)
+    |> Lwt_result.flat_map tap_notify
 end
 
 include Engine
