@@ -15,13 +15,13 @@ module Cashier = struct
     deposits
     |> List.map Deposit.item
     |> List.fold_left Item.stack items
-    |> List.map (Item.map_qty (max 0))
+    |> List.map (fun (token, qty) -> (token, max 0 qty))
 
   let stack_cooldowns deposits cooldowns =
     deposits
     |> List.filter_map Deposit.token_cooldown
     |> List.fold_left Item.stack cooldowns
-    |> List.map (Item.map_qty (max 0))
+    |> List.map (fun (token, qty) -> (token, max 0 qty))
 
   let distribute deposits player =
     let deposits = deposits |> List.filter (Deposit.belongs_to player) in
@@ -139,16 +139,16 @@ module Engine = struct
     let construct = construct ~token ~db
     and execute = Cashier.execute ~rules ~exchange
     and publish = DB.publish ~db
-    and tap_notify thanks =
+    and notify thanks =
       let@! () = R.notify thanks ~token in
       thanks
     in
     msg
     |> construct
     |> Lwt.map (Option.to_res (Failure "invalid message"))
-    |> Lwt.map (Result.map execute)
-    |> Lwt.map (Result.tap publish)
-    |> Lwt_result.flat_map tap_notify
+    |> Lwt.map (Result.map (fun thanks -> execute thanks))
+    |> Lwt.map (Result.tap (fun thanks -> publish thanks))
+    |> Lwt_result.flat_map (fun thanks -> notify thanks)
 end
 
 include Engine
