@@ -13,18 +13,20 @@ module Cashier = struct
 
   let stack_items deposits items =
     deposits
-    |> List.map Deposit.item
-    |> List.fold_left Item.stack items
-    |> List.map (Item.map_qty (max 0))
+    |> List.map (fun deposit -> Deposit.item deposit)
+    |> List.fold_left (fun deposits -> Item.stack deposits) items
+    |> List.map (fun (token, qty) -> (token, max qty 0))
 
   let stack_cooldowns deposits cooldowns =
     deposits
     |> List.filter_map Deposit.token_cooldown
     |> List.fold_left Item.stack cooldowns
-    |> List.map (Item.map_qty (max 0))
+    |> List.map (fun (token, qty) -> (token, max qty 0))
 
   let distribute deposits player =
-    let deposits = deposits |> List.filter (Deposit.belongs_to player) in
+    let deposits =
+      deposits |> List.filter (fun deposit -> Deposit.belongs_to player deposit)
+    in
     player |> Player.with_items (stack_items deposits) |> Player.recalculate
 
   let execute thx ~rules ~exchange =
@@ -32,7 +34,9 @@ module Cashier = struct
     let everyone = sender :: recipients in
 
     let collected = collect_deposits thx ~rules in
-    let players_tmp = everyone |> List.map (distribute collected) in
+    let players_tmp =
+      everyone |> List.map (fun player -> distribute collected player)
+    in
     let exchanged = exchange players_tmp in
 
     let deposits = exchanged @ collected in
@@ -42,7 +46,9 @@ module Cashier = struct
       |> Player.with_cooldowns (stack_cooldowns deposits)
       |> distribute deposits
     in
-    let recipients = recipients |> List.map (distribute deposits) in
+    let recipients =
+      recipients |> List.map (fun recipient -> distribute deposits recipient)
+    in
 
     { thx with sender; recipients; deposits }
 end
@@ -139,16 +145,16 @@ module Engine = struct
     let construct = construct ~token ~db
     and execute = Cashier.execute ~rules ~exchange
     and publish = DB.publish ~db
-    and tap_notify thanks =
+    and notify thanks =
       let@! () = R.notify thanks ~token in
       thanks
     in
     msg
     |> construct
     |> Lwt.map (Option.to_res (Failure "invalid message"))
-    |> Lwt.map (Result.map execute)
-    |> Lwt.map (Result.tap publish)
-    |> Lwt_result.flat_map tap_notify
+    |> Lwt.map (Result.map (fun thanks -> execute thanks))
+    |> Lwt.map (Result.tap (fun thanks -> publish thanks))
+    |> Lwt_result.flat_map (fun thanks -> notify thanks)
 end
 
 include Engine

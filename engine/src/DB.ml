@@ -17,7 +17,7 @@ module DB = struct
     |> Player.id
     |> Format.sprintf "cooldown:%s:*"
     |> Redis.scan_pattern db ~count:32
-    |> Result.flat_map (Redis.mget_safe db)
+    |> Result.flat_map (fun keys -> Redis.mget_safe db keys)
     |> Result.map (fun cooldowns -> parse cooldowns)
 
   let set_cooldowns Player.{ id; cooldowns } ~db =
@@ -26,7 +26,7 @@ module DB = struct
       let key = Format.sprintf "cooldown:%s:%s" id token in
       cooldown
       |> Json.stringify Cooldown.yojson_of_t
-      |> Result.flat_map (Redis.setex db key ttl)
+      |> Result.flat_map (fun json -> Redis.setex db key ttl json)
     in
     Result.all (List.map set cooldowns)
 
@@ -40,7 +40,7 @@ module DB = struct
       | Some data ->
           data
           |> Json.parse Player.t_of_yojson
-          |> Result.flat_map (with_scan_cooldowns ~db)
+          |> Result.flat_map (fun player -> with_scan_cooldowns player ~db)
           |> Result.map (fun player -> Some player)
     in
     id |> Format.sprintf "player:%s" |> Redis.get db |> Result.flat_map parse
@@ -53,8 +53,8 @@ module DB = struct
     let key = Format.sprintf "player:%s" (Player.id player) in
     player
     |> Json.stringify Player.yojson_of_t
-    |> Result.flat_map (Redis.set db key)
-    |> Result.map ignore
+    |> Result.flat_map (fun json -> Redis.set db key json)
+    |> Result.map (fun res -> ignore res)
     |> Result.flat_map (fun () -> set_cooldowns player ~db)
 
   let lookup_player ~token ~db id =
@@ -76,7 +76,7 @@ module DB = struct
     in
     thx
     |> Thanks.everyone
-    |> List.map push
+    |> List.map (fun player -> push player)
     |> List.cons (Redis.lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
     |> Result.all
 
@@ -85,7 +85,7 @@ module DB = struct
     thx
     |> Thanks.summary
     |> Json.stringify Thanks.Summary.yojson_of_t
-    |> Result.flat_map (Redis.set db key)
+    |> Result.flat_map (fun json -> Redis.set db key json)
     |> Result.map ignore
 
   let zadd_scores players ~db =
@@ -96,14 +96,14 @@ module DB = struct
     in
     let*! () =
       players
-      |> List.map (map_score Player.total_score)
+      |> List.map (fun player -> map_score Player.total_score player)
       |> Redis.zadd db "scores"
-      |> Result.map ignore
+      |> Result.map (fun res -> ignore res)
     and*! () =
       players
-      |> List.map (map_score Player.highscore)
+      |> List.map (fun player -> player |> map_score Player.highscore)
       |> Redis.zadd db "highscores"
-      |> Result.map ignore
+      |> Result.map (fun res -> ignore res)
     in
     ()
 
