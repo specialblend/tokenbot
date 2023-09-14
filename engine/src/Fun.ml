@@ -98,7 +98,7 @@ module Res = struct
     | Error e, _ -> Error e
     | _, Error e -> Error e
 
-  let all l = List.fold_left (fun acc x -> bind acc (fun _ -> x)) (Ok ()) l
+  let all l = List.fold_left (fun acc x -> bind acc (always x)) (Ok ()) l
   let flat_map f t = bind t f
   let tap fn = map (fun x -> fn x |> always x)
   let from_opt = Opt.to_res
