@@ -10,7 +10,7 @@ module Score = struct
 
   let sum = List.fold_left ( + ) 0
   let stack1 fn (token, qty) = fn token * qty
-  let stack fn items = List.map (stack1 fn) items
+  let stack fn = List.map (stack1 fn)
   let points = stack Token.points >> sum >> max 0
   let bonus = stack Token.bonus >> sum >> clamp (0, 100)
   let luck = stack Token.luck >> sum >> clamp (0, 100)
