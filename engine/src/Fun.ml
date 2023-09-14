@@ -57,8 +57,8 @@ module Lst = struct
     in
     fold_left stack [] items
 
-  let map_ignore fn = map (fun x -> fn x |> ignore)
-  let reject fn l = filter (fun x -> fn x |> not) l
+  let map_ignore fn = map (fn >> ignore)
+  let reject fn = filter (fn >> not)
 
   let take n l =
     let rec take acc n = function
