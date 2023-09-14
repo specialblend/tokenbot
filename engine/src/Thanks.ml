@@ -81,8 +81,8 @@ module Thanks = struct
       tokens;
       player_deposits =
         deposits
-        |> Lst.map Deposit.summary
-        |> Lst.group_by Deposit.Summary.player;
+        |> List.map Deposit.summary
+        |> List.group_by Deposit.Summary.player;
     }
 end
 
