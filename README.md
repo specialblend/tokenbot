@@ -92,7 +92,7 @@ npm install
 npm run dev
 ```
 
-```
+```bash
 # serve app over https (required)
 ngrok http 3000 --domain example123.ngrok.io
 
