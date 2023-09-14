@@ -30,7 +30,7 @@ module DB = struct
     in
     Result.all (List.map set cooldowns)
 
-  let get_player id ~db =
+  let get_player player_id ~db =
     let with_scan_cooldowns player ~db =
       let*! c = scan_cooldowns player ~db in
       Player.{ player with cooldowns = c }
@@ -43,7 +43,10 @@ module DB = struct
           |> Result.flat_map (fun player -> with_scan_cooldowns player ~db)
           |> Result.map (fun player -> Some player)
     in
-    id |> Format.sprintf "player:%s" |> Redis.get db |> Result.flat_map parse
+    player_id
+    |> Format.sprintf "player:%s"
+    |> Redis.get db
+    |> Result.flat_map parse
 
   let fetch_player id ~token =
     let@! user = Slack.UserInfo.get id ~token in
@@ -57,11 +60,11 @@ module DB = struct
     |> Result.map (fun res -> ignore res)
     |> Result.flat_map (fun () -> set_cooldowns player ~db)
 
-  let lookup_player ~token ~db id =
-    match get_player id ~db with
+  let lookup_player ~token ~db player_id =
+    match get_player player_id ~db with
     | Ok (Some player) -> Lwt.return (Some player)
     | _ ->
-        let@ res = fetch_player id ~token in
+        let@ res = fetch_player player_id ~token in
         res
         |> Result.to_option
         |> Option.map (fun player -> set_player ~db |> always player)
