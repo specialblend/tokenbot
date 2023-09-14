@@ -58,9 +58,7 @@ module DB = struct
     | Ok (Some player) -> Lwt.return (Some player)
     | _ ->
         let@ res = fetch_player id ~token in
-        let*? player = Result.to_option res in
-        let _ = set_player player ~db in
-        player
+        res |> Result.to_option |> Option.map (Fun.tap (set_player ~db))
 
   let lpush_thanks thx ~db =
     let id = Thanks.id thx in
