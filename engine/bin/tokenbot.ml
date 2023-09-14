@@ -5,6 +5,19 @@ open System
 (**)
 module Red = Redis_sync.Client
 
+let dice = Dice.dice_random ()
+let rules = Rules.Collection.init ~dice
+let exchange = Rules.Exchange.exchange
+
+let token =
+  Env.require "SLACK_BOT_TOKEN" |! "missing required env param SLACK_BOT_TOKEN"
+
+let db =
+  let host = Env.get "REDIS_HOST" |? "localhost"
+  and port = Env.get_int "REDIS_PORT" |? 6379 in
+  try Red.connect { host; port } with
+  | _ -> die "failed to connect to redis"
+
 let () =
   try
     match
@@ -13,25 +26,10 @@ let () =
       |! "failed to decode base64 input"
       |> Slack.AppMention.parse_json
       |! "failed to decode slack message"
-      |> fun msg ->
-      let db =
-        let host = Env.get "REDIS_HOST" |? "localhost"
-        and port = Env.get_int "REDIS_PORT" |? 6379 in
-        try Red.connect { host; port } with
-        | _ -> die "failed to connect to redis"
-      in
-      let task =
-        let dice = Dice.dice_random () in
-        let rules = Rules.Collection.init ~dice
-        and exchange = Rules.Exchange.exchange in
-        let token =
-          Env.require "SLACK_BOT_TOKEN"
-          |! "missing required env param SLACK_BOT_TOKEN"
-        in
-        Engine.run msg ~token ~db ~rules ~exchange
-      in
-      let thanks = Lwt_main.run task in
-      let _ = Red.disconnect db in
+      |> Engine.run ~token ~db ~rules ~exchange
+      |> Lwt_main.run
+      |> fun thanks ->
+      Red.disconnect db;
       thanks
     with
     | Error err -> die (fail err)
