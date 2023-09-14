@@ -5,9 +5,13 @@ module Cooldown = Item.Cooldown
 
 module DB = struct
   let scan_cooldowns player ~db =
-    let parse_cooldowns =
+    let parse_cooldowns list =
       let parse = Json.parse_opt Cooldown.t_of_yojson in
-      List.filter_map (Option.flat_map parse)
+      List.filter_map
+        (function
+          | None -> None
+          | Some cooldown -> parse cooldown)
+        list
     in
     player
     |> Player.id
