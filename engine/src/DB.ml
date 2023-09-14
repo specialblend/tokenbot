@@ -1,61 +1,60 @@
 open Fun
 open Fun.Let_syntax
+module Red = Redis
 module Deposit = Thanks.Deposit
 module Cooldown = Item.Cooldown
 
 module DB = struct
   let scan_cooldowns player ~db =
-    let parse cooldowns =
-      let parse1 = Json.parse_opt Cooldown.t_of_yojson in
-      List.filter_map
-        (function
-          | None -> None
-          | Some cooldown -> parse1 cooldown)
-        cooldowns
+    let parse =
+      let parse1 = Jsn.parse_opt Cooldown.t_of_yojson in
+      Lst.filter_map (function
+        | None -> None
+        | Some cooldown -> parse1 cooldown)
     in
     player
     |> Player.id
-    |> Format.sprintf "cooldown:%s:*"
-    |> Redis.scan_pattern db ~count:32
-    |> Result.flat_map (Redis.mget_safe db)
-    |> Result.map (fun cooldowns -> parse cooldowns)
+    |> Fmt.sprintf "cooldown:%s:*"
+    |> Red.scan_pattern db ~count:32
+    |> Res.flat_map (fun key -> Red.mget_safe db key)
+    |> Res.map (fun cooldowns -> parse cooldowns)
+    |> function
+    | Ok cooldowns -> { player with cooldowns }
+    | _ -> player
 
   let set_cooldowns Player.{ id; cooldowns } ~db =
     let set cooldown =
       let token, ttl = cooldown in
-      let key = Format.sprintf "cooldown:%s:%s" id token in
+      let key = Fmt.sprintf "cooldown:%s:%s" id token in
       cooldown
-      |> Json.stringify Cooldown.yojson_of_t
-      |> Result.flat_map (Redis.setex db key ttl)
+      |> Jsn.stringify Cooldown.yojson_of_t
+      |> Res.flat_map (fun json -> Red.setex db key ttl json)
     in
-    Result.all (List.map set cooldowns)
+    Res.all (Lst.map set cooldowns)
 
   let get_player id ~db =
-    let with_scan_cooldowns player ~db =
-      let*! c = scan_cooldowns player ~db in
-      Player.{ player with cooldowns = c }
-    in
     let parse = function
       | None -> Ok None
       | Some data ->
           data
-          |> Json.parse Player.t_of_yojson
-          |> Result.flat_map (with_scan_cooldowns ~db)
-          |> Result.map (fun player -> Some player)
+          |> Jsn.parse Player.t_of_yojson
+          |> Res.map (fun player -> scan_cooldowns player ~db)
+          |> Res.map (fun player -> Some player)
     in
-    id |> Format.sprintf "player:%s" |> Redis.get db |> Result.flat_map parse
+    Fmt.sprintf "player:%s" id
+    |> Red.get db
+    |> Res.flat_map (fun json -> parse json)
 
   let fetch_player id ~token =
     let@! user = Slack.UserInfo.get id ~token in
     Player.of_slack_user user
 
   let set_player player ~db =
-    let key = Format.sprintf "player:%s" (Player.id player) in
+    let key = Fmt.sprintf "player:%s" (Player.id player) in
     player
-    |> Json.stringify Player.yojson_of_t
-    |> Result.flat_map (Redis.set db key)
-    |> Result.map ignore
-    |> Result.flat_map (fun () -> set_cooldowns player ~db)
+    |> Jsn.stringify Player.yojson_of_t
+    |> Res.flat_map (fun json -> Red.set db key json)
+    |> Res.flat_map (fun _ -> set_cooldowns player ~db)
 
   let lookup_player ~token ~db id =
     match get_player id ~db with
@@ -63,7 +62,7 @@ module DB = struct
     | _ ->
         let@ res = fetch_player id ~token in
         res
-        |> Result.to_option
+        |> Res.to_option
         |> Option.map (fun player -> set_player ~db |> always player)
 
   let lpush_thanks thx ~db =
@@ -71,22 +70,22 @@ module DB = struct
     let push player =
       player
       |> Player.id
-      |> Format.sprintf "thanks:@about:%s"
-      |> Redis.lpush_rotate ~id ~limit:10 ~db
+      |> Fmt.sprintf "thanks:@about:%s"
+      |> Red.lpush_rotate ~id ~limit:10 ~db
     in
     thx
     |> Thanks.everyone
-    |> List.map push
-    |> List.cons (Redis.lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
-    |> Result.all
+    |> Lst.map push
+    |> Lst.cons (Red.lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
+    |> Res.all
 
   let set_thanks thx ~db =
-    let key = Format.sprintf "thanks:%s" (Thanks.id thx) in
+    let key = Fmt.sprintf "thanks:%s" (Thanks.id thx) in
     thx
     |> Thanks.summary
-    |> Json.stringify Thanks.Summary.yojson_of_t
-    |> Result.flat_map (Redis.set db key)
-    |> Result.map ignore
+    |> Jsn.stringify Thanks.Summary.yojson_of_t
+    |> Res.flat_map (Red.set db key)
+    |> Res.map (fun res -> ignore res)
 
   let zadd_scores players ~db =
     let map_score fn player =
@@ -96,14 +95,14 @@ module DB = struct
     in
     let*! () =
       players
-      |> List.map (map_score Player.total_score)
-      |> Redis.zadd db "scores"
-      |> Result.map ignore
+      |> Lst.map (map_score Player.total_score)
+      |> Red.zadd db "scores"
+      |> Res.map ignore
     and*! () =
       players
-      |> List.map (map_score Player.highscore)
-      |> Redis.zadd db "highscores"
-      |> Result.map ignore
+      |> Lst.map (map_score Player.highscore)
+      |> Red.zadd db "highscores"
+      |> Res.map ignore
     in
     ()
 
@@ -112,7 +111,7 @@ module DB = struct
     let*! () = lpush_thanks thx ~db
     and*! () = set_thanks thx ~db
     and*! () = zadd_scores players ~db
-    and*! () = players |> List.map (set_player ~db) |> Result.all in
+    and*! () = players |> Lst.map (set_player ~db) |> Res.all in
     ()
 end
 
