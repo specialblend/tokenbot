@@ -5,18 +5,10 @@ open Fun.Let_syntax
 module Red = Redis_sync.Client
 module Deposit = Thanks.Deposit
 module Cooldown = Item.Cooldown
+module J = Yojson.Safe
 
-(* TODO build module type for this so it can be mocked *)
 module DB = struct
-  module J = Yojson.Safe
-
-  let mget ~db =
-    let mget = trap (Red.mget db) in
-    function
-    | [] -> Ok []
-    | keys -> mget keys
-
-  let scan ~count ~db =
+  let scan_pattern db ~count =
     trap (fun pattern ->
         let rec scan_rec acc ~cursor =
           match Red.scan db cursor ~pattern ~count with
@@ -27,13 +19,22 @@ module DB = struct
         scan_rec [] ~cursor:0)
 
   let scan_cooldowns player ~db =
-    let parse_cooldown = Jsn.parse_opt Cooldown.t_of_yojson in
+    let mget db =
+      let mget = trap (Red.mget db) in
+      function
+      | [] -> Ok []
+      | keys -> mget keys
+    in
+    let parse_cooldowns =
+      let parse1 = Jsn.parse_opt Cooldown.t_of_yojson in
+      List.filter_map (Opt.flat_map parse1)
+    in
     player
     |> Player.id
     |> fmt "cooldown:%s:*"
-    |> scan ~count:32 ~db
-    |> Res.flat_map (mget ~db)
-    |> Res.map (List.filter_map (Opt.flat_map parse_cooldown))
+    |> scan_pattern db ~count:32
+    |> Res.flat_map (mget db)
+    |> Res.map parse_cooldowns
 
   let set_cooldowns Player.{ id; cooldowns } ~db =
     let setex = trap3 (Red.setex db) in
