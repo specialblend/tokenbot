@@ -5,8 +5,8 @@ module PlayerDB : PlayerDB = struct
 
   module Player = Player
 
-  let get_player _db _id = assert false
-  let put_player _db _player = assert false
+  let get _db _id = assert false
+  let put _db _player = assert false
 end
 
 include PlayerDB

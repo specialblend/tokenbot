@@ -1,4 +1,3 @@
-(*  *)
 type nat = System.Nat.t
 type short_text = Short of string
 type long_text = Long of string
@@ -10,8 +9,8 @@ type 'a promise
 type 'a io = 'a fallible promise
 
 (*  *)
-type qty = Qty of nat
 type token = Token of string
+type qty = Qty of nat
 type duration = Seconds of nat
 
 module type Msg = sig
@@ -29,12 +28,8 @@ module type Item = sig
 
   val token : t -> token
   val qty : t -> qty
-
-  (*  *)
   val make : token -> qty -> t
   val map_qty : (qty -> qty) -> t -> t
-
-  (*  *)
   val stack : t list -> t -> t list
 end
 
@@ -43,6 +38,7 @@ module type Cooldown = sig
 
   val token : t -> token
   val duration : t -> duration
+  val stack : t list -> t -> t list
 end
 
 module type Player = sig
@@ -130,6 +126,7 @@ module type ThanksSummary = sig
   val timestamp : t -> Thanks.Msg.ts
   val text : t -> long_text
   val sender : t -> Player.t
+  val recipients : t -> Player.t list
   val grouped_txns : t -> Player.t * Txn.t list
   val of_thanks : Thanks.t -> t
 end
@@ -139,8 +136,8 @@ module type ThanksDB = sig
 
   module Thanks : Thanks
 
-  val get_thanks : t -> Thanks.id -> Thanks.t io
-  val put_thanks : t -> Thanks.t -> unit io
+  val get : t -> Thanks.id -> Thanks.t io
+  val put : t -> Thanks.t -> unit io
 end
 
 module type PlayerDB = sig
@@ -148,8 +145,8 @@ module type PlayerDB = sig
 
   module Player : Player
 
-  val get_player : t -> Player.t -> Player.t io
-  val put_player : t -> Player.t -> unit io
+  val get : t -> Player.t -> Player.t io
+  val put : t -> Player.t -> unit io
 end
 
 module type NotifierAPI = sig
@@ -164,6 +161,7 @@ module type Engine = sig
   module Item : Item
   module Msg : Msg
   module Txn : Txn
+  module Player : Player
 
   (*  *)
   module ThanksDB : ThanksDB
@@ -181,29 +179,14 @@ module type Engine = sig
   type published = Published of settled
   type notified = Notified of published
 
-  (*  *)
-  type receptionist = Msg.t -> received
-  type scanner = received -> scanned io
-  type collector = received -> collected
-  type distributor = collected -> distributed
-  type exchanger = distributed -> exchanged
-  type settler = exchanged -> settled
-  type publisher = settled -> published io
-  type notifier = published -> notified io
-
-  val receive : receptionist
-  val scan : scanner
-  val collect : collector
-  val distribute : distributor
-  val exchange : exchanger
-  val publish : publisher
-  val notify : notifier
-
-  val engine :
-    receptionist ->
-    collector ->
-    distributor ->
-    exchanger ->
-    publisher ->
-    notifier
+  val run :
+    Msg.t ->
+    received ->
+    scanned io ->
+    collected ->
+    distributed ->
+    exchanged ->
+    settled ->
+    published io ->
+    notified io
 end

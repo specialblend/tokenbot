@@ -2,6 +2,12 @@ open Fun
 open Contract
 open System
 
+module Qty = struct
+  type t = qty
+
+  let ( + ) (Qty q1) (Qty q2) = Qty Nat.(q1 + q2)
+end
+
 module Item : Item = struct
   type t = token * qty
 
@@ -12,14 +18,13 @@ module Item : Item = struct
   let make token qty = (token, qty)
   let map_qty fn (token, qty) = (token, fn qty)
 
-  (*  *)
-  let stack items (token, Qty qty) =
+  let stack items (token, qty) =
     let qty =
       match List.assoc_opt token items with
-      | Some (Qty qty') -> Nat.(qty + qty')
+      | Some qty' -> Qty.(qty + qty')
       | None -> qty
     in
-    (token, Qty qty) :: List.remove_assoc token items
+    (token, qty) :: List.remove_assoc token items
 end
 
 include Item
