@@ -5,6 +5,11 @@ type long_text = Long of string
 type tz_offset = Seconds of int
 
 (*  *)
+type 'a fallible = ('a, exn) result
+type 'a promise
+type 'a io = 'a fallible promise
+
+(*  *)
 type qty = Qty of nat
 type token = Token of string
 type duration = Seconds of nat
@@ -43,7 +48,6 @@ end
 module type Player = sig
   type t
   type id
-  type summary
 
   module Item : Item
   module Cooldown : Cooldown
@@ -56,57 +60,81 @@ module type Player = sig
   val inventory : t -> Item.t list
   val cooldowns : t -> Cooldown.t list
   val is_bot : t -> bool
-  val summary : t -> summary
 end
 
-module type Participant = sig
+module type PlayerSummary = sig
+  type t
+  type id
+
   module Player : Player
 
-  type t
-
-  val sender_of : Player.t -> t
-  val recipient_of : Player.t -> t
-  val player : t -> Player.t
-  val is_sender : t -> bool
-  val is_recipient : t -> bool
+  val id : t -> id
+  val name : t -> short_text
+  val of_player : Player.t -> t
 end
 
 module type Txn = sig
   type t
 
-  module Participant : Participant
+  module Player : Player
   module Item : Item
   module Cooldown : Cooldown
 
-  val participant : t -> Participant.t
+  val player : t -> Player.t
   val item : t -> Item.t
   val cooldown : t -> Cooldown.t option
   val about : t -> short_text option
 end
 
+module type TxnSummary = sig
+  type t
+
+  module Txn : Txn
+  module Player : PlayerSummary
+
+  val player : t -> Player.t
+  val item : t -> Txn.Item.t
+  val of_txn : Txn.t -> t
+end
+
 module type Thanks = sig
   type t
   type id
-  type summary
 
   module Msg : Msg
-  module Participant : Participant
   module Player : Player
   module Txn : Txn
+
+  type participant =
+    | Sender of Player.t
+    | Recipient of Player.t
 
   val id : t -> id
   val tokens : t -> token list
   val timestamp : t -> Msg.ts
   val msg : t -> Msg.t
-  val participants : t -> Participant.t list
   val sender : t -> Player.t
   val recipients : t -> Player.t list
   val txns : t -> Txn.t list
-  val summary : t -> summary
+  val participants : t -> participant list
+end
+
+module type ThanksSummary = sig
+  type t
+
+  module Thanks : Thanks
+  module Player : PlayerSummary
+  module Txn : TxnSummary
+
+  val id : t -> Thanks.id
+  val timestamp : t -> Thanks.Msg.ts
+  val text : t -> long_text
+  val sender : t -> Player.t
+  val grouped_txns : t -> Player.t * Txn.t list
+  val of_thanks : Thanks.t -> t
 end
 
 module type ThanksDB = sig
-  type 'a io
   type t
 
   module Thanks : Thanks
@@ -116,7 +144,6 @@ module type ThanksDB = sig
 end
 
 module type PlayerDB = sig
-  type 'a io
   type t
 
   module Player : Player
@@ -125,41 +152,45 @@ module type PlayerDB = sig
   val put_player : t -> Player.t -> unit io
 end
 
-type ('thx, 'txn) collect_rule = 'thx -> 'txn list -> 'txn list
-type ('item, 'txn) exchange_rule = 'item -> 'txn list
-type 'txn collected = Collected of 'txn list
-type 'part distributed = Distributed of 'part list
-type 'part exchanged = Exchanged of 'part list
-type 'thx published = Published of 'thx
-type 'thx notified = Notified of 'thx
+module type NotifierAPI = sig
+  type t
 
-module type Engine = sig
-  type 'a io
-
-  module Msg : Msg
-  module Item : Item
-  module Player : Player
-  module Txn : Txn
-  module Participant : Participant
   module Thanks : Thanks
 
-  (*  *)
+  val notify : Thanks.t -> unit io
+end
+
+module type Engine = sig
+  module Thanks : Thanks
   module ThanksDB : ThanksDB
   module PlayerDB : PlayerDB
+  module NotifierAPI : NotifierAPI
+
+  type collector_rule = Thanks.t -> Thanks.Txn.t list -> Thanks.Txn.t list
+  type exchange_rule = Thanks.Txn.Item.t -> Thanks.Txn.t list
+  type sender = Sender of Thanks.Player.t
+  type recipient = Recipient of Thanks.Player.t
 
   (*  *)
+  type received = Received of Thanks.Msg.t * Thanks.t
+  type collected = Collected of Thanks.Txn.t list
+  type distributed = Distributed of Thanks.Player.t list
+  type exchanged = Exchanged of Thanks.Player.t list
+  type published = Published of Thanks.t
+  type notified = Notified of Thanks.t
 
-  val construct : Msg.t -> Thanks.t io
+  (*  *)
+  type receptionist = Thanks.Msg.t -> Thanks.t io
+  type collector = collector_rule list -> Thanks.t -> collected
+  type distributor = collected -> Thanks.t -> distributed
+  type exchanger = exchange_rule list -> distributed -> Thanks.t -> exchanged
+  type publisher = exchanged -> Thanks.t -> published io
+  type notifier = published -> notified io
 
-  val collect :
-    (Thanks.t, Txn.t) collect_rule list -> Thanks.t -> Txn.t collected
-
-  val exchange :
-    (Item.t, Txn.t) exchange_rule list ->
-    Participant.t list ->
-    Participant.t exchanged
-
-  val distribute : Participant.t list -> Txn.t list -> Participant.t distributed
-  val publish : Thanks.t -> Thanks.t published io
-  val notify : Thanks.t -> Thanks.t notified io
+  val receive : receptionist
+  val collect : collector
+  val distribute : distributor
+  val exchange : exchanger
+  val publish : publisher
+  val notify : notifier
 end

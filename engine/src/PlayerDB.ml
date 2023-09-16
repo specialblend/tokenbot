@@ -1,7 +1,6 @@
 open Contract
 
 module PlayerDB : PlayerDB = struct
-  type 'a io
   type t
 
   module Player = Player

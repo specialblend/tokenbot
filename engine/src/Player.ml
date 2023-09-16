@@ -7,18 +7,6 @@ module Player : Player = struct
   module Item = Item
   module Cooldown = Cooldown
 
-  module Summary = struct
-    type t = {
-      id: id;
-      name: short_text;
-    }
-    [@@deriving fields]
-  end
-
-  type summary = Summary.t
-
-  module Nat = Nat
-
   type t = {
     id: id;
     name: short_text;
@@ -30,8 +18,16 @@ module Player : Player = struct
     is_bot: bool;
   }
   [@@deriving fields]
+end
 
-  let summary { id; name } : Summary.t = { id; name }
+module Summary = struct
+  type t = {
+    id: Player.id;
+    name: short_text;
+  }
+  [@@deriving fields]
+
+  let of_player { id; name } : t = { id; name }
 end
 
 include Player

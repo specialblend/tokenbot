@@ -1,13 +1,13 @@
 open Contract
 
 module Txn : Txn = struct
-  module Participant = Participant
+  module Player = Player
   module Item = Item
   module Cooldown = Cooldown
 
   type t = {
     item: Item.t;
-    participant: Participant.t;
+    player: Player.t;
     cooldown: Cooldown.t option;
     about: short_text option;
   }
