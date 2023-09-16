@@ -1,11 +1,14 @@
 open Contract
 
-module Participant : PARTICIPANT = struct
+module Participant : Participant = struct
   module Player = Player
 
   type t =
     | Sender of Player.t
     | Recipient of Player.t
+
+  let sender_of player = Sender player
+  let recipient_of player = Recipient player
 
   let player = function
     | Sender player -> player

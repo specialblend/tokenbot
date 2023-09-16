@@ -1,34 +1,8 @@
-open Contract
-
-module Nat : NATURAL = struct
+module Nat = struct
   type t = Nat of int
 
-  let ( -! ) (Nat x) (Nat y) = Nat (max 0 (x - y))
-
-  let ( - ) (Nat x) (Nat y) =
-    match x - y with
-    | z when z >= 0 -> Some (Nat z)
-    | _ -> None
-
-  let ( + ) (Nat x) (Nat y) = Nat (x + y)
-
-  let make = function
-    | x when x >= 0 -> Some (Nat x)
-    | _ -> None
-end
-
-module Percentage : PERCENTAGE = struct
-  include Nat
-end
-
-module Duration : DURATION = struct
-  module Nat = Nat
-  include Nat
-
-  type t =
-    | Seconds of Nat.t
-    | Minutes of Nat.t
-    | Hours of Nat.t
+  let ( + ) (Nat x) (Nat y) = Nat (Int.add x y)
+  let ( * ) (Nat x) (Nat y) = Nat (Int.mul x y)
 end
 
 module Clock = struct

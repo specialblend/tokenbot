@@ -1,4 +1,3 @@
-open Contract
 open Fun
 open System
 
@@ -75,12 +74,3 @@ let roll_many tokens ~qty ~dice =
         loop (token :: acc) (qty - 1)
   in
   loop [] qty
-
-module Token : TOKEN = struct
-  type t = Token of string
-
-  let eq (Token t1) (Token t2) = t1 = t2
-  let make s = Some (Token s)
-end
-
-include Token

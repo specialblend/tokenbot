@@ -1,6 +1,6 @@
 open Contract
 
-module Thanks : THANKS = struct
+module Thanks : Thanks = struct
   module Msg = Msg
   module Participant = Participant
   module Player = Player
@@ -12,17 +12,17 @@ module Thanks : THANKS = struct
   end
 
   type id = Msg.t
-  type timestamp = Msg.timestamp
+  type timestamp = Msg.ts
   type summary = Summary.t
 
   type t = {
     id: id;
     timestamp: timestamp;
+    tokens: token list;
     msg: Msg.t;
     participants: Participant.t list;
     sender: Player.t;
     recipients: Player.t list;
-    tokens: Token.t list;
     txns: Txn.t list;
     summary: Summary.t;
   }

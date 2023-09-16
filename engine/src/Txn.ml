@@ -1,6 +1,6 @@
 open Contract
 
-module Txn : TXN = struct
+module Txn : Txn = struct
   module Participant = Participant
   module Item = Item
   module Cooldown = Cooldown

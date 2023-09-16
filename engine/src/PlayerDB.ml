@@ -1,6 +1,6 @@
 open Contract
 
-module PlayerDB : PLAYER_DB = struct
+module PlayerDB : PlayerDB = struct
   type 'a io
   type t
 

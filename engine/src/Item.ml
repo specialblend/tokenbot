@@ -1,9 +1,8 @@
 open Fun
 open Contract
+open System
 
-module Item : ITEM = struct
-  type token = Token.t
-  type qty = int
+module Item : Item = struct
   type t = token * qty
 
   let token (tok, _) = tok
@@ -14,13 +13,13 @@ module Item : ITEM = struct
   let map_qty fn (token, qty) = (token, fn qty)
 
   (*  *)
-  let stack items (token, qty) =
+  let stack items (token, Qty qty) =
     let qty =
       match List.assoc_opt token items with
-      | Some qty' -> qty + qty'
+      | Some (Qty qty') -> Nat.(qty + qty')
       | None -> qty
     in
-    (token, qty) :: List.remove_assoc token items
+    (token, Qty qty) :: List.remove_assoc token items
 end
 
 include Item

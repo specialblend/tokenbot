@@ -1,10 +1,7 @@
 open Contract
 
-module Cooldown : COOLDOWN = struct
-  module Token = Token
-  module Duration = System.Duration
-
-  type t = Token.t * Duration.t
+module Cooldown : Cooldown = struct
+  type t = token * duration
 
   let token (tok, _) = tok
   let duration (_, dur) = dur

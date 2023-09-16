@@ -1,10 +1,10 @@
 open Contract
 
-module ThanksDB : THANKS_DB = struct
+module ThanksDB : ThanksDB = struct
   type 'a io
   type t
 
-  module Thanks : THANKS = Thanks
+  module Thanks = Thanks
 
   let get_thanks _db _id = assert false
   let put_thanks _db _thx = assert false
