@@ -1,151 +1,29 @@
-open Fun
-open Fun.Let_syntax
+open Contract
 
-(**)
-module Deposit = Thanks.Deposit
-module Cooldown = Item.Cooldown
+module Engine : ENGINE = struct
+  type 'a io
 
-type rule = Thanks.t -> Deposit.t list -> Deposit.t list
+  module Msg = Msg
+  module Item = Item
+  module Player = Player
+  module Txn = Txn
+  module Participant = Participant
+  module Thanks = Thanks
+  module ThanksDB = ThanksDB
+  module PlayerDB = PlayerDB
 
-module Cashier = struct
-  let collect_deposits thanks ~(rules : rule list) =
-    rules |> Lst.fold_left (fun deposits rule -> rule thanks deposits) []
+  type collected = Collected of Txn.t list
+  type distributed = Distributed of Participant.t list
+  type exchanged = Exchanged of Participant.t list
+  type published = Published of Thanks.t
+  type notified = Notified of Thanks.t
+  type collect_rule = Thanks.t -> Txn.t list -> Txn.t list
+  type exchange_rule = Item.t -> Txn.t list
 
-  let stack_items deposits items =
-    deposits
-    |> Lst.map Deposit.item
-    |> Lst.fold_left Item.stack items
-    |> Lst.map (fun (token, qty) -> (token, max 0 qty))
-
-  let stack_cooldowns deposits cooldowns =
-    deposits
-    |> Lst.filter_map Deposit.token_cooldown
-    |> Lst.fold_left Item.stack cooldowns
-    |> Lst.map (fun (token, qty) -> (token, max 0 qty))
-
-  let distribute deposits player =
-    let deposits = deposits |> Lst.filter (Deposit.belongs_to player) in
-    player |> Player.with_items (stack_items deposits) |> Player.recalculate
-
-  let execute thx ~rules ~exchange =
-    let sender, recipients = Thanks.parts thx in
-    let everyone = sender :: recipients in
-
-    let collected = collect_deposits thx ~rules in
-    let players_tmp = everyone |> Lst.map (distribute collected) in
-    let exchanged = exchange players_tmp in
-
-    let deposits = exchanged @ collected in
-
-    let sender =
-      sender
-      |> Player.with_cooldowns (stack_cooldowns deposits)
-      |> distribute deposits
-    in
-    let recipients = recipients |> Lst.map (distribute deposits) in
-
-    { thx with sender; recipients; deposits }
+  let construct _ = assert false
+  let collect _ _ = assert false
+  let exchange _ _ = assert false
+  let distribute _ _ = assert false
+  let publish _ = assert false
+  let notify _ = assert false
 end
-
-module Receptionist = struct
-  let split_words = Str.split (Str.regexp " ")
-
-  let parse_mention =
-    function%pcre
-    | {|(<@(?<user_id>\w+)>)|} -> Some user_id
-    | _ -> None
-
-  let parse_emoji =
-    function%pcre
-    | {|((?<shortcode>:\w+:))|} -> Token.from_shortcode shortcode
-    | _ -> None
-
-  let parse_mentions text =
-    text
-    |> split_words
-    |> Lst.filter_map (fun word -> parse_mention word)
-    |> Str.dedupe
-
-  let parse_emojis text =
-    text
-    |> split_words
-    |> Lst.filter_map (fun word -> parse_emoji word)
-    |> Str.dedupe
-
-  let mention player = fmt "<@%s>" (Player.id player)
-
-  let fmt_qty = function
-    | qty when qty >= 0 -> fmt "%i" qty
-    | qty -> fmt "(%i)" qty
-
-  let fmt_deposit Deposit.{ item = token, qty; about; cooldown } =
-    let q = fmt_qty qty in
-    match cooldown with
-    | None -> fmt "%s `x%s %s`" token q about
-    | Some duration ->
-        duration
-        |> Cooldown.format
-        |> fmt "%s `x%s %s (cooldown: %s)`" token q about
-
-  let fmt_group (player, deposits) =
-    deposits |> Lst.map fmt_deposit |> Lst.cons (mention player) |> Lst.cons ""
-
-  let fmt_thanks thanks =
-    thanks
-    |> Thanks.deposits
-    |> Lst.group_by Deposit.player
-    |> Lst.concat_map fmt_group
-    |> String.concat "\n"
-
-  let notify thx ~token =
-    let open Slack in
-    let emoji = "white_check_mark" in
-    let msg = Thanks.msg thx
-    and txt = fmt_thanks thx in
-    let@! () = msg |> PostMessage.(reply txt >> post ~token)
-    and@! () = msg |> AddReaction.(react emoji >> post ~token) in
-    ()
-end
-
-module Engine = struct
-  module Msg = Slack.AppMention
-  module R = Receptionist
-
-  let construct msg ~token ~db =
-    let Msg.{ client_msg_id = id; text; user } = msg in
-
-    let lookup = DB.lookup_player ~token ~db
-    and filter_map = Lwt_list.filter_map_p in
-
-    let tokens = R.parse_emojis text
-    and mentions = R.parse_mentions text in
-
-    let@ user = lookup user
-    and@ mentions = filter_map lookup mentions in
-
-    let*? sender = user in
-    let recipients =
-      mentions
-      |> Lst.reject Player.is_bot
-      |> Lst.sort_uniq Player.compare
-      |> Lst.take 10
-    in
-    Thanks.make id ~msg ~tokens ~sender ~recipients
-
-  let run msg ~token ~db ~rules ~exchange =
-    let construct = construct ~token ~db
-    and execute = Cashier.execute ~rules ~exchange
-    and publish = DB.publish ~db
-    and notify thanks =
-      let@! () = R.notify thanks ~token in
-      thanks
-    in
-    msg
-    |> construct
-    |> Lwt.map (Opt.to_res (Failure "invalid message"))
-    |> Lwt.map (Res.map (fun thanks -> execute thanks))
-    |> Lwt.map (Res.tap (fun thanks -> publish thanks))
-    |> Lwt_res.flat_map (fun thanks -> notify thanks)
-end
-
-include Engine
