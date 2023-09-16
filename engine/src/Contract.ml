@@ -161,36 +161,49 @@ module type NotifierAPI = sig
 end
 
 module type Engine = sig
-  module Thanks : Thanks
+  module Item : Item
+  module Msg : Msg
+  module Txn : Txn
+
+  (*  *)
   module ThanksDB : ThanksDB
   module PlayerDB : PlayerDB
   module NotifierAPI : NotifierAPI
 
-  type collector_rule = Thanks.t -> Thanks.Txn.t list -> Thanks.Txn.t list
-  type exchange_rule = Thanks.Txn.Item.t -> Thanks.Txn.t list
-  type sender = Sender of Thanks.Player.t
-  type recipient = Recipient of Thanks.Player.t
+  type sender = Sender of Player.t
+  type recipient = Recipient of Player.t
+  type received = Received of Msg.t
+  type scanned = Scanned of received * sender * recipient list
+  type collected = Collected of scanned * Txn.t list
+  type distributed = Distributed of collected * (Player.t * Item.t list) list
+  type exchanged = Exchanged of distributed * Txn.t list
+  type settled = Settled of exchanged * distributed
+  type published = Published of settled
+  type notified = Notified of published
 
   (*  *)
-  type received = Received of Thanks.Msg.t * Thanks.t
-  type collected = Collected of Thanks.Txn.t list
-  type distributed = Distributed of Thanks.Player.t list
-  type exchanged = Exchanged of Thanks.Player.t list
-  type published = Published of Thanks.t
-  type notified = Notified of Thanks.t
-
-  (*  *)
-  type receptionist = Thanks.Msg.t -> Thanks.t io
-  type collector = collector_rule list -> Thanks.t -> collected
-  type distributor = collected -> Thanks.t -> distributed
-  type exchanger = exchange_rule list -> distributed -> Thanks.t -> exchanged
-  type publisher = exchanged -> Thanks.t -> published io
+  type receptionist = Msg.t -> received
+  type scanner = received -> scanned io
+  type collector = received -> collected
+  type distributor = collected -> distributed
+  type exchanger = distributed -> exchanged
+  type settler = exchanged -> settled
+  type publisher = settled -> published io
   type notifier = published -> notified io
 
   val receive : receptionist
+  val scan : scanner
   val collect : collector
   val distribute : distributor
   val exchange : exchanger
   val publish : publisher
   val notify : notifier
+
+  val engine :
+    receptionist ->
+    collector ->
+    distributor ->
+    exchanger ->
+    publisher ->
+    notifier
 end

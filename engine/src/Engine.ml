@@ -1,4 +1,5 @@
 open Contract
+open Fun
 
 module Engine : Engine = struct
   module Thanks = Thanks
@@ -34,4 +35,5 @@ module Engine : Engine = struct
   let distribute _ _ = assert false
   let publish _ = assert false
   let notify _ = assert false
+  let engine = receive >> collect >> exchange >> distribute >> publish >> notify
 end
