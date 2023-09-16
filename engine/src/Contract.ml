@@ -51,16 +51,15 @@ end
 
 module type ITEM = sig
   type t
+  type token
+  type qty
 
-  module Token : TOKEN
-  module Qty : QTY
-
-  val token : t -> Token.t
-  val qty : t -> Qty.t
+  val token : t -> token
+  val qty : t -> qty
 
   (*  *)
-  val make : Token.t -> Qty.t -> t
-  val map_qty : (Qty.t -> Qty.t) -> t -> t
+  val make : token -> qty -> t
+  val map_qty : (qty -> qty) -> t -> t
 
   (*  *)
   val stack : t list -> t -> t list
