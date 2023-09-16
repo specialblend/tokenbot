@@ -1,9 +1,12 @@
 open Contract
+open System
 
 module Player : PLAYER = struct
   type id
-  type item
-  type cooldown
+
+  module Item = Item
+  module Cooldown = Cooldown
+  module Percentage = Percentage
 
   module Summary = struct
     type t = {
@@ -15,14 +18,16 @@ module Player : PLAYER = struct
 
   type summary = Summary.t
 
+  module Nat = Nat
+
   type t = {
     id: id;
     name: short_text;
-    base_score: nat;
-    bonus_score: nat;
-    luck: stat;
-    inventory: item list;
-    cooldowns: cooldown list;
+    base_score: Nat.t;
+    bonus_score: Nat.t;
+    luck: Percentage.t;
+    inventory: Item.t list;
+    cooldowns: Cooldown.t list;
     is_bot: bool;
   }
   [@@deriving fields]

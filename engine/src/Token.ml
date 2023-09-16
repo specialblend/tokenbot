@@ -1,3 +1,4 @@
+open Contract
 open Fun
 open System
 
@@ -5,17 +6,9 @@ open System
 module Duration = Clock.Duration
 
 let points = function
-  | "🌮" -> 1
-  | "🍻" -> 1
-  | "☕️" -> 1
-  | "🍀" -> 1
-  | "🎃" -> 1
+  (* TODO *)
   | "🌶️" -> 3
   | "🔥" -> 7
-  | "🍉" -> 13
-  | "🏷️" -> 0
-  | "🎁" -> 0
-  | "💀" -> -5
   | _ -> 0
 
 let bonus = function
@@ -82,3 +75,12 @@ let roll_many tokens ~qty ~dice =
         loop (token :: acc) (qty - 1)
   in
   loop [] qty
+
+module Token : TOKEN = struct
+  type t = Token of string
+
+  let eq (Token t1) (Token t2) = t1 = t2
+  let make s = Some (Token s)
+end
+
+include Token

@@ -1,20 +1,44 @@
 (*  *)
-type nat = Natural of int
-type percent = Percent of int
+
 type emoji = Emoji of string
 type short_text = ShortText of string
 type long_text = LongText of string
 type tz_offset = Seconds of int
 
-type duration =
-  | Seconds of nat
-  | Minutes of nat
-  | Hours of nat
+module type NATURAL = sig
+  type t
 
-(*  *)
-type token = Token of emoji
-type qty = Qty of nat
-type stat = Stat of percent
+  val ( + ) : t -> t -> t
+  val ( - ) : t -> t -> t option
+  val ( -! ) : t -> t -> t
+
+  (*  *)
+  val make : int -> t option
+end
+
+module type PERCENTAGE = sig
+  include NATURAL
+end
+
+module type DURATION = sig
+  module Nat : NATURAL
+
+  type t =
+    | Seconds of Nat.t
+    | Minutes of Nat.t
+    | Hours of Nat.t
+end
+
+module type QTY = sig
+  type t = Qty of int
+end
+
+module type TOKEN = sig
+  type t
+
+  val eq : t -> t -> bool
+  val make : string -> t option
+end
 
 module type MSG = sig
   type t
@@ -28,79 +52,99 @@ end
 module type ITEM = sig
   type t
 
-  val token : t -> token
-  val qty : t -> qty
+  module Token : TOKEN
+  module Qty : QTY
+
+  val token : t -> Token.t
+  val qty : t -> Qty.t
+
+  (*  *)
+  val make : Token.t -> Qty.t -> t
+  val map_qty : (Qty.t -> Qty.t) -> t -> t
+
+  (*  *)
+  val stack : t list -> t -> t list
 end
 
 module type COOLDOWN = sig
   type t
 
-  val token : t -> token
-  val duration : t -> duration
-end
+  module Token : TOKEN
+  module Duration : DURATION
 
-module type PARTICIPANT = sig
-  type t
-  type player
-
-  val player : t -> bool
-  val is_sender : t -> bool
-  val is_recipient : t -> bool
-  val is_player : t -> player -> bool
-end
-
-module type TXN = sig
-  type t
-  type participant
-  type item
-  type about
-  type cooldown
-
-  val participant : t -> participant
-  val item : t -> item
-  val about : t -> about option
-  val cooldown : t -> cooldown option
+  val token : t -> Token.t
+  val duration : t -> Duration.t
 end
 
 module type PLAYER = sig
   type t
   type id
   type summary
-  type item
-  type cooldown
+
+  module Nat : NATURAL
+  module Item : ITEM
+  module Cooldown : COOLDOWN
+  module Percentage : PERCENTAGE
 
   val id : t -> id
   val name : t -> short_text
-  val base_score : t -> nat
-  val bonus_score : t -> nat
-  val luck : t -> stat
-  val inventory : t -> item list
-  val cooldowns : t -> cooldown list
+  val base_score : t -> Nat.t
+  val bonus_score : t -> Nat.t
+  val luck : t -> Percentage.t
+  val inventory : t -> Item.t list
+  val cooldowns : t -> Cooldown.t list
   val is_bot : t -> bool
 
   (*  *)
   val summary : t -> summary
 end
 
+module type PARTICIPANT = sig
+  type t
+
+  module Player : PLAYER
+
+  val player : t -> Player.t
+
+  (*  *)
+  val is_sender : t -> bool
+  val is_recipient : t -> bool
+  val is_player : t -> Player.t -> bool
+end
+
+module type TXN = sig
+  type t
+
+  module Participant : PARTICIPANT
+  module Item : ITEM
+  module Cooldown : COOLDOWN
+
+  val participant : t -> Participant.t
+  val item : t -> Item.t
+  val cooldown : t -> Cooldown.t option
+  val about : t -> short_text option
+end
+
 module type THANKS = sig
   type t
   type id
-  type msg
   type summary
   type timestamp
-  type participant
-  type sender
-  type recipient
-  type txn
+
+  module Msg : MSG with type timestamp = timestamp
+  module Participant : PARTICIPANT
+  module Player : PLAYER
+  module Token : TOKEN
+  module Txn : TXN
 
   val id : t -> id
   val timestamp : t -> timestamp
-  val msg : t -> msg
-  val participants : t -> participant list
-  val sender : t -> sender
-  val recipients : t -> recipient list
-  val tokens : t -> token list
-  val txns : t -> txn list
+  val msg : t -> Msg.t
+  val participants : t -> Participant.t list
+  val sender : t -> Player.t
+  val recipients : t -> Player.t list
+  val tokens : t -> Token.t list
+  val txns : t -> Txn.t list
   val summary : t -> summary
 end
 

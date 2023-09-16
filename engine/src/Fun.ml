@@ -33,6 +33,7 @@ let trap_opt f x =
   | _ -> None
 
 (**)
+
 module Str = struct
   include Str
 
