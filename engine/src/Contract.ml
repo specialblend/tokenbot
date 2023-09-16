@@ -130,16 +130,15 @@ module type THANKS = sig
   type t
   type id
   type summary
-  type timestamp
 
-  module Msg : MSG with type timestamp = timestamp
+  module Msg : MSG
   module Participant : PARTICIPANT
   module Player : PLAYER
   module Token : TOKEN
   module Txn : TXN
 
   val id : t -> id
-  val timestamp : t -> timestamp
+  val timestamp : t -> Msg.timestamp
   val msg : t -> Msg.t
   val participants : t -> Participant.t list
   val sender : t -> Player.t
