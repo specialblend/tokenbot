@@ -187,8 +187,8 @@ module type ENGINE = sig
   module Thanks : THANKS
 
   (*  *)
-  module ThanksDB : THANKS_DB with module Thanks = Thanks
-  module PlayerDB : PLAYER_DB with module Player = Player
+  module ThanksDB : THANKS_DB
+  module PlayerDB : PLAYER_DB
 
   type collected = Collected of Txn.t list
   type distributed = Distributed of Participant.t list
