@@ -45,6 +45,7 @@ module type MSG = sig
   type id
   type timestamp
 
+  val id : t -> id
   val timestamp : t -> timestamp
   val text : t -> long_text
 end
@@ -99,16 +100,17 @@ module type PLAYER = sig
 end
 
 module type PARTICIPANT = sig
-  type t
-
   module Player : PLAYER
+
+  type t =
+    | Sender of Player.t
+    | Recipient of Player.t
 
   val player : t -> Player.t
 
   (*  *)
   val is_sender : t -> bool
   val is_recipient : t -> bool
-  val is_player : t -> Player.t -> bool
 end
 
 module type TXN = sig

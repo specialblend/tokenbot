@@ -34,3 +34,5 @@ module Player : PLAYER = struct
 
   let summary { id; name } : Summary.t = { id; name }
 end
+
+include Player
