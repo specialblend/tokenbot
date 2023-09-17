@@ -30,9 +30,9 @@ module type MSG = sig
   val id : t -> id
   val text : t -> string
   val ts : t -> ts
-  val chan : t -> channel
-  val usr : t -> Usr.id
-  val thr : t -> thread option
+  val channel : t -> channel
+  val user_id : t -> Usr.id
+  val thread : t -> thread option
 end
 
 module type LOOKUP_USER = sig
@@ -49,7 +49,7 @@ module type POST_MESSAGE = sig
   type 'a promise
 
   val post :
-    chan:Msg.channel -> ?thread:Msg.thread -> text:string -> unit promise
+    channel:Msg.channel -> ?thread:Msg.thread -> text:string -> unit promise
 end
 
 module type ITEM = sig

@@ -79,11 +79,8 @@ module AppMention = struct
   [@@yojson.allow_extra_fields]
 
   let id = client_msg_id
-  let chan = channel
-  let ts = ts
-  let usr = user
-  let text = text
-  let thr = thread_ts
+  let user_id = user
+  let thread = thread_ts
   (* let parse_json = Jsn.parse t_of_yojson *)
 end
 
@@ -116,7 +113,7 @@ module AddReaction = struct
   [@@deriving yojson]
 
   let react emoji parent =
-    let channel = AppMention.chan parent
+    let channel = AppMention.channel parent
     and timestamp = AppMention.ts parent in
     { channel; timestamp; name = emoji }
 
