@@ -17,7 +17,7 @@ module type USER = sig
   val tz_offset : t -> int
 end
 
-module type MSG = sig
+module type MESSAGE = sig
   module Usr : USER
 
   type t
@@ -44,7 +44,7 @@ module type LOOKUP_USER = sig
 end
 
 module type POST_MESSAGE = sig
-  module Msg : MSG
+  module Msg : MESSAGE
 
   type 'a promise
   type token
@@ -117,7 +117,7 @@ module type DEPOSIT = sig
 end
 
 module type THANKS = sig
-  module Msg : MSG
+  module Msg : MESSAGE
   module Player : PLAYER
   module Deposit : DEPOSIT
 
@@ -161,7 +161,7 @@ module type Engine = sig
   type 'a io
 
   module Item : ITEM
-  module Msg : MSG
+  module Msg : MESSAGE
   module Deposit : DEPOSIT
   module Player : PLAYER
 
