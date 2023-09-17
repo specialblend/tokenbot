@@ -1,5 +1,8 @@
 open Contract
-open Fun
+
+module Receptionist = struct
+  let _scan _msg = assert false
+end
 
 module Engine : Engine = struct
   type 'a io
@@ -27,41 +30,6 @@ module Engine : Engine = struct
   type published = Published of settled
   type notified = Notified of published
 
-  let db : PlayerDB.t = assert false
-
-  module Receptionist = struct
-    let split_words = Str.split (Str.regexp " ")
-
-    let parse_mention =
-      function%pcre
-      | {|(<@(?<user_id>\w+)>)|} -> Some user_id
-      | _ -> None
-
-    let parse_emoji =
-      function%pcre
-      | {|((?<shortcode>:\w+:))|} -> Token.from_shortcode shortcode
-      | _ -> None
-
-    let parse_mentions text =
-      text
-      |> split_words
-      |> Lst.filter_map (fun word -> parse_mention word)
-      |> Str.dedupe
-
-    let parse_emojis text =
-      text
-      |> split_words
-      |> Lst.filter_map (fun word -> parse_emoji word)
-      |> Str.dedupe
-
-    let _scan msg =
-      let sender_id = Msg.user msg in
-      let recipient_ids = msg |> Msg.text |> parse_mentions in
-      let _sender = PlayerDB.get db sender_id
-      and _recipients = Lst.map (PlayerDB.get db) recipient_ids
-      and _tokens = msg |> Msg.text |> parse_emojis in
-      ()
-  end
-
+  let _db = assert false
   let run _ = assert false
 end

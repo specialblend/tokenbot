@@ -88,11 +88,13 @@ module AuthTest = struct
   }
   [@@yojson.allow_extra_fields] [@@deriving yojson]
 
-  let get ~token =
-    let uri = Uri.of_string "https://slack.com/api/auth.test"
-    and headers = Request.headers token in
-    let@ data = Fetch.get_json ~uri ~headers in
-    data |> Response.parse_ok |> Result.flat_map (trap t_of_yojson)
+  let get ~token:_ = assert false
+
+  (* let get ~token =
+     let uri = Uri.of_string "https://slack.com/api/auth.test"
+     and headers = Request.headers token in
+     let@ data = Fetch.get_json ~uri ~headers in
+     data |> Response.parse_ok |> Result.flat_map (trap t_of_yojson) *)
 end
 
 module PostMsg = struct

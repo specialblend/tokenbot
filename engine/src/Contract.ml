@@ -30,8 +30,8 @@ module type MESSAGE = sig
   val text : t -> string
   val ts : t -> ts
   val channel : t -> channel
-  val user_id : t -> Usr.id
   val thread : t -> thread option
+  val user_id : t -> Usr.id
 end
 
 module type LOOKUP_USER = sig

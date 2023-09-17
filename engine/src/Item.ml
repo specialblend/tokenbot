@@ -1,29 +1,21 @@
-open Fun
 open Contract
 
 module Qty = struct
   type t = qty
 
-  let ( + ) (Qty q1) (Qty q2) = Qty (q1 + q2)
+  let ( + ) (Qty _q1) (Qty _q2) = assert false
 end
 
 module Item : ITEM = struct
   type t = token * qty
 
-  let token (tok, _) = tok
-  let qty (_, q) = q
+  let token (_tok, _) = assert false
+  let qty (_, _q) = assert false
 
   (*  *)
-  let make token qty = (token, qty)
-  let map_qty fn (token, qty) = (token, fn qty)
-
-  let stack items (token, qty) =
-    let qty =
-      match List.assoc_opt token items with
-      | Some qty' -> Qty.(qty + qty')
-      | None -> qty
-    in
-    (token, qty) :: List.remove_assoc token items
+  let make _token _qty = assert false
+  let map_qty _fn (_token, _qty) = assert false
+  let stack _items (_token, _qty) = assert false
 end
 
 include Item

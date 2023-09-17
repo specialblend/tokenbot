@@ -17,8 +17,6 @@ module Player : PLAYER = struct
     is_bot: bool;
   }
   [@@deriving fields]
-
-  let id { id; _ } = id
 end
 
 module Summary : PLAYER_SUMMARY = struct
@@ -33,7 +31,7 @@ module Summary : PLAYER_SUMMARY = struct
   [@@deriving fields]
 
   (* TODO use destructure syntax *)
-  let of_player (p : Player.t) : t = { id = Player.id p; name = Player.name p }
+  let of_player (_p : Player.t) : t = assert false
 end
 
 include Player
