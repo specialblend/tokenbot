@@ -8,7 +8,7 @@ module Player : PLAYER = struct
 
   type t = {
     id: id;
-    name: string;
+    name: id;
     base_score: int;
     bonus_score: int;
     luck: int;
@@ -24,13 +24,16 @@ end
 module Summary : PLAYER_SUMMARY = struct
   module Player = Player
 
+  type id = Player.id
+
   type t = {
-    id: Player.id;
+    id: id;
     name: string;
   }
   [@@deriving fields]
 
-  let of_player { id; name } : t = { id; name }
+  (* TODO use destructure syntax *)
+  let of_player (p : Player.t) : t = { id = Player.id p; name = Player.name p }
 end
 
 include Player

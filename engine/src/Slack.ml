@@ -1,6 +1,6 @@
 open Fun
 open Fun.Let_syntax
-open Contract.Messaging
+open Contract
 
 exception Failed of string
 
@@ -72,15 +72,40 @@ module AppMention = struct
   let parse_json = Jsn.parse t_of_yojson
 end
 
-module Msg : MSG = struct
-  type t = AppMention.t [@@deriving ord, show { with_path = false }]
+module Ts : TIMESTAMP = struct
+  type t = string
+  type id = string
+end
 
+module Thr : THREAD = struct
+  type t = string
+  type id = string
+end
+
+module Chan : CHANNEL = struct
+  type t = string
+  type id = string
+end
+
+module Msg : MSG = struct
+  module Ts = Ts
+  module Thr = Thr
+  module Chan = Chan
+  module Usr = User
+
+  type t = AppMention.t [@@deriving fields, ord, show { with_path = false }]
+  type id = string
+  type txt = string
+
+  let id = AppMention.client_msg_id
+  let chan = AppMention.channel
+  let ts t : Ts.t = AppMention.ts t
+  let usr = AppMention.user
+  let txt = AppMention.text
+  let thr = AppMention.thread_ts
+
+  (*  *)
   let parse_json = Jsn.parse AppMention.t_of_yojson
-  let channel = AppMention.channel
-  let ts = AppMention.ts
-  let user = AppMention.user
-  let text = AppMention.text
-  let thread_ts = AppMention.thread_ts
 end
 
 module AuthTest = struct

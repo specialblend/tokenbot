@@ -1,7 +1,7 @@
 open Contract
 
 module Deposit : DEPOSIT = struct
-  module Player = Player
+  module Player = Player.Summary
   module Item = Item
   module Cooldown = Cooldown
 

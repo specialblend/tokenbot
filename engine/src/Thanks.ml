@@ -1,7 +1,7 @@
 open Contract
 
 module Thanks : Thanks = struct
-  module Msg = Msg
+  module Msg = Slack.Msg
   module Player = Player
   module Token = Token
   module Txn = Txn
