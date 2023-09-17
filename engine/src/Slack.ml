@@ -1,6 +1,5 @@
 open Fun
 open Fun.Let_syntax
-open Contract
 
 exception Failed of string
 
@@ -45,8 +44,6 @@ module User = struct
   }
   [@@deriving fields, yojson]
 end
-
-module R = Response
 
 module AppMention = struct
   module Usr = User
@@ -95,34 +92,10 @@ module AuthTest = struct
     let uri = Uri.of_string "https://slack.com/api/auth.test"
     and headers = Request.headers token in
     let@ data = Fetch.get_json ~uri ~headers in
-    data |> R.parse_ok |> Res.flat_map (trap t_of_yojson)
+    data |> Response.parse_ok |> Res.flat_map (trap t_of_yojson)
 end
 
-module AddReaction = struct
-  module Msg = AppMention [@@deriving yojson]
-
-  type t = {
-    channel: string;
-    timestamp: string;
-    name: string;
-  }
-  [@@deriving yojson]
-
-  let react emoji parent =
-    let channel = AppMention.channel parent
-    and timestamp = AppMention.ts parent in
-    { channel; timestamp; name = emoji }
-
-  let post t ~token =
-    let uri = Uri.of_string "https://slack.com/api/reactions.add"
-    and headers = Request.headers token
-    and json = yojson_of_t t in
-
-    let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> R.parse_ok |> Res.map ignore
-end
-
-module PostMessage : POST_MESSAGE = struct
+module PostMessage = struct
   module Msg = AppMention
 
   type token = string
@@ -142,7 +115,7 @@ module PostMessage : POST_MESSAGE = struct
     and json = yojson_of_t t in
 
     let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> R.parse_ok |> Res.map ignore
+    data |> Response.parse_ok |> Res.map ignore
 
   let _reply text parent =
     let channel = AppMention.channel parent
@@ -162,7 +135,7 @@ module UserInfo = struct
 
     let@ data = Fetch.get_json ~uri ~headers in
     data
-    |> R.parse_ok
+    |> Response.parse_ok
     |> Res.flat_map (trap t_of_yojson)
     |> Res.map (fun { user } -> user)
 end
