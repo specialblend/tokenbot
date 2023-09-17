@@ -1,6 +1,6 @@
 open Contract
 
-module Txn : Txn = struct
+module Deposit : DEPOSIT = struct
   module Player = Player
   module Item = Item
   module Cooldown = Cooldown
@@ -9,9 +9,9 @@ module Txn : Txn = struct
     item: Item.t;
     player: Player.t;
     cooldown: Cooldown.t option;
-    about: short_text option;
+    about: string option;
   }
   [@@deriving fields]
 end
 
-include Txn
+include Deposit

@@ -1,14 +1,13 @@
 open Fun
 open Contract
-open System
 
 module Qty = struct
   type t = qty
 
-  let ( + ) (Qty q1) (Qty q2) = Qty Nat.(q1 + q2)
+  let ( + ) (Qty q1) (Qty q2) = Qty (q1 + q2)
 end
 
-module Item : Item = struct
+module Item : ITEM = struct
   type t = token * qty
 
   let token (tok, _) = tok

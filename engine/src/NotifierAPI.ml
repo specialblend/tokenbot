@@ -2,6 +2,7 @@ open Contract
 
 module NotifierAPI : NotifierAPI = struct
   type t
+  type 'a io
 
   module Thanks = Thanks
 

@@ -2,6 +2,7 @@ open Contract
 
 module ThanksDB : ThanksDB = struct
   type t
+  type 'a io = 'a Lwt.t
 
   module Thanks = Thanks
 

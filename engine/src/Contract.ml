@@ -1,29 +1,73 @@
-type nat = System.Nat.t
-type short_text = Short of string
-type long_text = Long of string
 type tz_offset = Seconds of int
-
-(*  *)
-type 'a fallible = ('a, exn) result
-type 'a promise
-type 'a io = 'a fallible promise
-
-(*  *)
 type token = Token of string
-type qty = Qty of nat
-type duration = Seconds of nat
+type qty = Qty of int
 
-module type Msg = sig
-  type t
-  type id
-  type ts
+type duration =
+  | Seconds of int
+  | Minutes of int
+  | Hours of int
 
-  val id : t -> id
-  val timestamp : t -> ts
-  val text : t -> long_text
+module Messaging = struct
+  module type TIMESTAMP = sig
+    type t
+  end
+
+  module type USER = sig
+    type t
+    type id
+
+    val id : t -> id
+    val name : t -> string
+    val is_bot : t -> bool
+    val tz_offset : t -> int
+  end
+
+  module type CHANNEL = sig
+    type t
+    type id
+  end
+
+  module type THREAD = sig
+    type t
+  end
+
+  module type MSG = sig
+    module Ts : TIMESTAMP
+    module Usr : USER
+    module Chan : CHANNEL
+    module Thr : THREAD
+
+    type t
+    type id
+    type txt
+
+    val id : t -> id
+    val txt : t -> string
+    val ts : t -> Ts.t
+    val chan : t -> Chan.t
+    val usr : t -> Usr.id
+    val thr : t -> Thr.t
+  end
+
+  module type LOOKUP_USER = sig
+    module Usr : USER
+
+    type 'a promise
+
+    val lookup : Usr.id -> Usr.t option promise
+  end
+
+  module type POST_MESSAGE = sig
+    module Chan : CHANNEL
+    module Thr : THREAD
+
+    type 'a promise
+
+    val post : chan:Chan.t -> ?thread:Thr.t -> txt:string -> unit promise
+  end
 end
 
-module type Item = sig
+module type ITEM = sig
   type t
 
   val token : t -> token
@@ -33,7 +77,7 @@ module type Item = sig
   val stack : t list -> t -> t list
 end
 
-module type Cooldown = sig
+module type COOLDOWN = sig
   type t
 
   val token : t -> token
@@ -41,65 +85,54 @@ module type Cooldown = sig
   val stack : t list -> t -> t list
 end
 
-module type Player = sig
+module type PLAYER = sig
   type t
-  type id
+  type id = string
 
-  module Item : Item
-  module Cooldown : Cooldown
+  module Item : ITEM
+  module Cooldown : COOLDOWN
 
   val id : t -> id
-  val name : t -> short_text
-  val base_score : t -> nat
-  val bonus_score : t -> nat
-  val luck : t -> nat
+  val name : t -> string
+  val base_score : t -> int
+  val bonus_score : t -> int
+  val luck : t -> int
   val inventory : t -> Item.t list
   val cooldowns : t -> Cooldown.t list
   val is_bot : t -> bool
 end
 
-module type PlayerSummary = sig
-  type t
-  type id
+module type PLAYER_SUMMARY = sig
+  module Player : PLAYER
 
-  module Player : Player
+  type t
+  type id = Player.id
 
   val id : t -> id
-  val name : t -> short_text
+  val name : t -> string
   val of_player : Player.t -> t
 end
 
-module type Txn = sig
+module type DEPOSIT = sig
   type t
 
-  module Player : Player
-  module Item : Item
-  module Cooldown : Cooldown
+  module Player : PLAYER_SUMMARY
+  module Item : ITEM
+  module Cooldown : COOLDOWN
 
   val player : t -> Player.t
   val item : t -> Item.t
   val cooldown : t -> Cooldown.t option
-  val about : t -> short_text option
+  val about : t -> string option
 end
 
-module type TxnSummary = sig
+module type THANKS = sig
+  module Msg : Messaging.MSG
+  module Player : PLAYER
+  module Deposit : DEPOSIT
+
   type t
-
-  module Txn : Txn
-  module Player : PlayerSummary
-
-  val player : t -> Player.t
-  val item : t -> Txn.Item.t
-  val of_txn : Txn.t -> t
-end
-
-module type Thanks = sig
-  type t
-  type id
-
-  module Msg : Msg
-  module Player : Player
-  module Txn : Txn
+  type id = string
 
   type participant =
     | Sender of Player.t
@@ -107,74 +140,54 @@ module type Thanks = sig
 
   val id : t -> id
   val tokens : t -> token list
-  val timestamp : t -> Msg.ts
   val msg : t -> Msg.t
   val sender : t -> Player.t
   val recipients : t -> Player.t list
-  val txns : t -> Txn.t list
+  val deposits : t -> Deposit.t list
   val participants : t -> participant list
 end
 
-module type ThanksSummary = sig
+module type THANKS_DB = sig
+  module Thanks : THANKS
+
   type t
-
-  module Thanks : Thanks
-  module Player : PlayerSummary
-  module Txn : TxnSummary
-
-  val id : t -> Thanks.id
-  val timestamp : t -> Thanks.Msg.ts
-  val text : t -> long_text
-  val sender : t -> Player.t
-  val recipients : t -> Player.t list
-  val grouped_txns : t -> Player.t * Txn.t list
-  val of_thanks : Thanks.t -> t
-end
-
-module type ThanksDB = sig
-  type t
-
-  module Thanks : Thanks
+  type 'a io
 
   val get : t -> Thanks.id -> Thanks.t io
   val put : t -> Thanks.t -> unit io
 end
 
-module type PlayerDB = sig
+module type PLAYER_DB = sig
+  module Player : PLAYER
+
   type t
+  type 'a io
 
-  module Player : Player
-
-  val get : t -> Player.t -> Player.t io
+  val get : t -> Player.id -> Player.t io
   val put : t -> Player.t -> unit io
 end
 
-module type NotifierAPI = sig
-  type t
-
-  module Thanks : Thanks
-
-  val notify : Thanks.t -> unit io
-end
-
 module type Engine = sig
-  module Item : Item
-  module Msg : Msg
-  module Txn : Txn
-  module Player : Player
+  type 'a io
+
+  module Item : ITEM
+  module Msg : Messaging.MSG
+  module Deposit : DEPOSIT
+  module Player : PLAYER
 
   (*  *)
-  module ThanksDB : ThanksDB
-  module PlayerDB : PlayerDB
-  module NotifierAPI : NotifierAPI
+  module ThanksDB : THANKS_DB
+  module PlayerDB : PLAYER_DB
 
   type sender = Sender of Player.t
   type recipient = Recipient of Player.t
+
+  (*  *)
   type received = Received of Msg.t
   type scanned = Scanned of received * sender * recipient list
-  type collected = Collected of scanned * Txn.t list
+  type collected = Collected of scanned * Deposit.t list
   type distributed = Distributed of collected * (Player.t * Item.t list) list
-  type exchanged = Exchanged of distributed * Txn.t list
+  type exchanged = Exchanged of distributed * Deposit.t list
   type settled = Settled of exchanged * distributed
   type published = Published of settled
   type notified = Notified of published

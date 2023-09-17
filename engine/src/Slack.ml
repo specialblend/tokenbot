@@ -1,5 +1,6 @@
 open Fun
 open Fun.Let_syntax
+open Contract.Messaging
 
 exception Failed of string
 
@@ -33,15 +34,16 @@ module Response = struct
     Res.flat_map expect_ok
 end
 
-module User = struct
+module User : USER = struct
+  type id = string [@@deriving yojson]
+
   type t = {
-    id: string;
-    team_id: string;
+    id: id;
     name: string;
     tz_offset: int;
     is_bot: bool;
   }
-  [@@deriving yojson] [@@yojson.allow_extra_fields]
+  [@@deriving fields, yojson]
 end
 
 module R = Response
@@ -68,6 +70,17 @@ module AppMention = struct
   [@@yojson.allow_extra_fields]
 
   let parse_json = Jsn.parse t_of_yojson
+end
+
+module Msg : MSG = struct
+  type t = AppMention.t [@@deriving ord, show { with_path = false }]
+
+  let parse_json = Jsn.parse AppMention.t_of_yojson
+  let channel = AppMention.channel
+  let ts = AppMention.ts
+  let user = AppMention.user
+  let text = AppMention.text
+  let thread_ts = AppMention.thread_ts
 end
 
 module AuthTest = struct

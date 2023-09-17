@@ -6,7 +6,7 @@ module Thanks : Thanks = struct
   module Token = Token
   module Txn = Txn
 
-  type id = Msg.t
+  type id = string
   type ts = Msg.ts
 
   type participant =

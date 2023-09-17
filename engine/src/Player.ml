@@ -1,29 +1,32 @@
 open Contract
-open System
 
-module Player : Player = struct
-  type id
+module Player : PLAYER = struct
+  type id = string
 
   module Item = Item
   module Cooldown = Cooldown
 
   type t = {
     id: id;
-    name: short_text;
-    base_score: Nat.t;
-    bonus_score: Nat.t;
-    luck: Nat.t;
+    name: string;
+    base_score: int;
+    bonus_score: int;
+    luck: int;
     inventory: Item.t list;
     cooldowns: Cooldown.t list;
     is_bot: bool;
   }
   [@@deriving fields]
+
+  let id { id; _ } = id
 end
 
-module Summary = struct
+module Summary : PLAYER_SUMMARY = struct
+  module Player = Player
+
   type t = {
     id: Player.id;
-    name: short_text;
+    name: string;
   }
   [@@deriving fields]
 

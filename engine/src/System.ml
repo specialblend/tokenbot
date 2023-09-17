@@ -1,10 +1,3 @@
-module Nat = struct
-  type t = Nat of int
-
-  let ( + ) (Nat x) (Nat y) = Nat (Int.add x y)
-  let ( * ) (Nat x) (Nat y) = Nat (Int.mul x y)
-end
-
 module Clock = struct
   open Unix
 
