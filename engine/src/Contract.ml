@@ -47,9 +47,14 @@ module type POST_MESSAGE = sig
   module Msg : MSG
 
   type 'a promise
+  type token
 
   val post :
-    channel:Msg.channel -> ?thread:Msg.thread -> text:string -> unit promise
+    thread:Msg.thread option ->
+    token:token ->
+    channel:Msg.channel ->
+    text:string ->
+    unit promise
 end
 
 module type ITEM = sig

@@ -1,6 +1,6 @@
 open Fun
 open Fun.Let_syntax
-(* open Contract *)
+open Contract
 
 exception Failed of string
 
@@ -126,15 +126,21 @@ module AddReaction = struct
     data |> R.parse_ok |> Res.map ignore
 end
 
-module PostMessage = struct
+module PostMessage : POST_MESSAGE = struct
+  module Msg = AppMention
+
+  type token = string
+  type 'a promise = ('a, exn) result Lwt.t
+
   type t = {
-    channel: string;
-    thread_ts: string option; [@yojson.optional]
+    channel: Msg.channel;
+    thread_ts: Msg.thread option; [@yojson.optional]
     text: string;
   }
   [@@deriving yojson]
 
-  let post t ~token =
+  let post ~thread ~token ~channel ~text =
+    let t = { channel; thread_ts = thread; text } in
     let uri = Uri.of_string "https://slack.com/api/chat.postMessage"
     and headers = Request.headers token
     and json = yojson_of_t t in
@@ -142,7 +148,7 @@ module PostMessage = struct
     let@ data = Fetch.post_json ~uri ~headers ~json in
     data |> R.parse_ok |> Res.map ignore
 
-  let reply text parent =
+  let _reply text parent =
     let channel = AppMention.channel parent
     and thread_ts = Some (AppMention.ts parent) in
     { channel; thread_ts; text }
