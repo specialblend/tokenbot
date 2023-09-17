@@ -5,7 +5,7 @@ module Engine : Engine = struct
   type 'a io
 
   module Item = Item
-  module Msg = Slack.AppMention
+  module Msg = Slack.Msg
   module Player = Player
   module Thanks = Thanks
   module Deposit = Deposit

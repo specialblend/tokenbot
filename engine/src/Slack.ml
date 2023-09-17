@@ -30,10 +30,10 @@ module Response = struct
       | Ok { error = Some err } -> Error (Failed err)
       | Ok { error = None } -> Error (Failed "unknown error")
     in
-    Res.flat_map expect_ok
+    Result.flat_map expect_ok
 end
 
-module User = struct
+module Usr = struct
   type id = string [@@deriving yojson]
 
   type t = {
@@ -45,8 +45,8 @@ module User = struct
   [@@deriving fields, yojson]
 end
 
-module AppMention = struct
-  module Usr = User
+module Msg = struct
+  module Usr = Usr
 
   type edited = {
     user: string;
@@ -68,7 +68,7 @@ module AppMention = struct
     text: string;
     thread_ts: string option;
     ts: string;
-    user: User.id;
+    user: Usr.id;
   }
   [@@deriving fields, yojson] [@@yojson.allow_extra_fields]
 
@@ -92,11 +92,11 @@ module AuthTest = struct
     let uri = Uri.of_string "https://slack.com/api/auth.test"
     and headers = Request.headers token in
     let@ data = Fetch.get_json ~uri ~headers in
-    data |> Response.parse_ok |> Res.flat_map (trap t_of_yojson)
+    data |> Response.parse_ok |> Result.flat_map (trap t_of_yojson)
 end
 
-module PostMessage = struct
-  module Msg = AppMention
+module PostMsg = struct
+  module Msg = Msg
 
   type token = string
   type 'a promise = ('a, exn) result Lwt.t
@@ -115,16 +115,16 @@ module PostMessage = struct
     and json = yojson_of_t t in
 
     let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> Response.parse_ok |> Res.map ignore
+    data |> Response.parse_ok |> Result.map ignore
 
   let _reply text parent =
-    let channel = AppMention.channel parent
-    and thread_ts = Some (AppMention.ts parent) in
+    let channel = Msg.channel parent
+    and thread_ts = Some (Msg.ts parent) in
     { channel; thread_ts; text }
 end
 
 module UserInfo = struct
-  type t = { user: User.t } [@@deriving yojson] [@@yojson.allow_extra_fields]
+  type t = { user: Usr.t } [@@deriving yojson] [@@yojson.allow_extra_fields]
 
   let get id ~token =
     let base_uri = Uri.of_string "https://slack.com/api/users.info"
@@ -136,6 +136,6 @@ module UserInfo = struct
     let@ data = Fetch.get_json ~uri ~headers in
     data
     |> Response.parse_ok
-    |> Res.flat_map (trap t_of_yojson)
-    |> Res.map (fun { user } -> user)
+    |> Result.flat_map (trap t_of_yojson)
+    |> Result.map (fun { user } -> user)
 end
