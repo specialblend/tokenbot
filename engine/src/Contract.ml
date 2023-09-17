@@ -25,7 +25,6 @@ module type MESSAGE = sig
   type ts
   type channel
   type thread
-  type text
 
   val id : t -> id
   val text : t -> string

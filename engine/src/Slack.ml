@@ -57,31 +57,27 @@ module AppMention = struct
   }
   [@@deriving ord, make, show { with_path = false }, yojson]
 
-  type id = string [@@deriving yojson]
-  type ts = string [@@deriving yojson]
-  type text = string [@@deriving yojson]
+  type id = string
+  type ts = string
   type channel = string [@@deriving yojson]
   type thread = string [@@deriving yojson]
 
   type t = {
-    client_msg_id: string; [@default "example_app_mention_id"]
-    channel: channel; [@default "EXAMPLE"]
-    edited: edited option; [@default None]
-    event_ts: string; [@default "0000000000.000000"]
-    team: string; [@default "TDEADBEEF"]
-    text: string; [@default "Hello world"]
-    thread_ts: thread option; [@default None]
-    ts: ts; [@default "0000000000.000000"]
+    client_msg_id: string;
+    channel: string;
+    edited: edited option;
+    event_ts: string;
+    team: string;
+    text: string;
+    thread_ts: string option;
+    ts: string;
     user: User.id;
   }
-  [@@deriving fields, yojson]
-  (* [@@deriving ord, fields, make, show { with_path = false }, yojson] *)
-  [@@yojson.allow_extra_fields]
+  [@@deriving fields, yojson] [@@yojson.allow_extra_fields]
 
   let id = client_msg_id
   let user_id = user
   let thread = thread_ts
-  (* let parse_json = Jsn.parse t_of_yojson *)
 end
 
 module AuthTest = struct
@@ -103,11 +99,11 @@ module AuthTest = struct
 end
 
 module AddReaction = struct
-  module Msg = AppMention
+  module Msg = AppMention [@@deriving yojson]
 
   type t = {
-    channel: AppMention.channel;
-    timestamp: AppMention.ts;
+    channel: string;
+    timestamp: string;
     name: string;
   }
   [@@deriving yojson]
