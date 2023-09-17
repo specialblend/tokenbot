@@ -5,15 +5,14 @@ module Engine : Engine = struct
   type 'a io
 
   module Item = Item
-  module Msg = Msg
+  module Msg = Slack.AppMention
   module Player = Player
   module Thanks = Thanks
-  module Txn = Txn
+  module Deposit = Deposit
 
   (*  *)
   module ThanksDB = ThanksDB
   module PlayerDB = PlayerDB
-  module NotifierAPI = NotifierAPI
 
   type sender = Sender of Player.t
   type recipient = Recipient of Player.t
@@ -21,9 +20,9 @@ module Engine : Engine = struct
   (*  *)
   type received = Received of Msg.t
   type scanned = Scanned of received * sender * recipient list
-  type collected = Collected of scanned * Txn.t list
+  type collected = Collected of scanned * Deposit.t list
   type distributed = Distributed of collected * (Player.t * Item.t list) list
-  type exchanged = Exchanged of distributed * Txn.t list
+  type exchanged = Exchanged of distributed * Deposit.t list
   type settled = Settled of exchanged * distributed
   type published = Published of settled
   type notified = Notified of published
@@ -55,13 +54,12 @@ module Engine : Engine = struct
       |> Lst.filter_map (fun word -> parse_emoji word)
       |> Str.dedupe
 
-    let scan msg =
-      let sender_id = Msg.userid msg in
-      let recipient_ids =
-        msg |> Msg.text |> fun (Long str) -> str |> parse_mentions
-      in
-      let sender = PlayerDB.get db sender_id
-      and recipients = Lst.map (PlayerDB.get db) recipient_ids in
+    let _scan msg =
+      let sender_id = Msg.user msg in
+      let recipient_ids = msg |> Msg.text |> parse_mentions in
+      let _sender = PlayerDB.get db sender_id
+      and _recipients = Lst.map (PlayerDB.get db) recipient_ids
+      and _tokens = msg |> Msg.text |> parse_emojis in
       ()
   end
 

@@ -7,10 +7,6 @@ type duration =
   | Minutes of int
   | Hours of int
 
-module type TIMESTAMP = sig
-  type t
-end
-
 module type USER = sig
   type t
   type id
@@ -21,31 +17,22 @@ module type USER = sig
   val tz_offset : t -> int
 end
 
-module type CHANNEL = sig
-  type t
-  type id
-end
-
-module type THREAD = sig
-  type t
-end
-
 module type MSG = sig
-  module Ts : TIMESTAMP
   module Usr : USER
-  module Chan : CHANNEL
-  module Thr : THREAD
 
   type t
   type id
-  type txt
+  type ts
+  type channel
+  type thread
+  type text
 
   val id : t -> id
-  val txt : t -> string
-  val ts : t -> Ts.t
-  val chan : t -> Chan.t
+  val text : t -> string
+  val ts : t -> ts
+  val chan : t -> channel
   val usr : t -> Usr.id
-  val thr : t -> Thr.t
+  val thr : t -> thread option
 end
 
 module type LOOKUP_USER = sig
@@ -57,12 +44,12 @@ module type LOOKUP_USER = sig
 end
 
 module type POST_MESSAGE = sig
-  module Chan : CHANNEL
-  module Thr : THREAD
+  module Msg : MSG
 
   type 'a promise
 
-  val post : chan:Chan.t -> ?thread:Thr.t -> txt:string -> unit promise
+  val post :
+    chan:Msg.channel -> ?thread:Msg.thread -> text:string -> unit promise
 end
 
 module type ITEM = sig

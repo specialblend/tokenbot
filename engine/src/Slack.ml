@@ -1,6 +1,6 @@
 open Fun
 open Fun.Let_syntax
-open Contract
+(* open Contract *)
 
 exception Failed of string
 
@@ -34,7 +34,7 @@ module Response = struct
     Res.flat_map expect_ok
 end
 
-module User : USER = struct
+module User = struct
   type id = string [@@deriving yojson]
 
   type t = {
@@ -49,63 +49,42 @@ end
 module R = Response
 
 module AppMention = struct
+  module Usr = User
+
   type edited = {
     user: string;
     ts: string;
   }
   [@@deriving ord, make, show { with_path = false }, yojson]
 
+  type id = string [@@deriving yojson]
+  type ts = string [@@deriving yojson]
+  type text = string [@@deriving yojson]
+  type channel = string [@@deriving yojson]
+  type thread = string [@@deriving yojson]
+
   type t = {
     client_msg_id: string; [@default "example_app_mention_id"]
-    channel: string; [@default "EXAMPLE"]
+    channel: channel; [@default "EXAMPLE"]
     edited: edited option; [@default None]
     event_ts: string; [@default "0000000000.000000"]
     team: string; [@default "TDEADBEEF"]
     text: string; [@default "Hello world"]
-    thread_ts: string option; [@default None]
-    ts: string; [@default "0000000000.000000"]
-    user: string; [@default "UDEADBEEF"]
+    thread_ts: thread option; [@default None]
+    ts: ts; [@default "0000000000.000000"]
+    user: User.id;
   }
-  [@@deriving ord, fields, make, show { with_path = false }, yojson]
+  [@@deriving fields, yojson]
+  (* [@@deriving ord, fields, make, show { with_path = false }, yojson] *)
   [@@yojson.allow_extra_fields]
 
-  let parse_json = Jsn.parse t_of_yojson
-end
-
-module Ts : TIMESTAMP = struct
-  type t = string
-  type id = string
-end
-
-module Thr : THREAD = struct
-  type t = string
-  type id = string
-end
-
-module Chan : CHANNEL = struct
-  type t = string
-  type id = string
-end
-
-module Msg : MSG = struct
-  module Ts = Ts
-  module Thr = Thr
-  module Chan = Chan
-  module Usr = User
-
-  type t = AppMention.t [@@deriving fields, ord, show { with_path = false }]
-  type id = string
-  type txt = string
-
-  let id = AppMention.client_msg_id
-  let chan = AppMention.channel
-  let ts t : Ts.t = AppMention.ts t
-  let usr = AppMention.user
-  let txt = AppMention.text
-  let thr = AppMention.thread_ts
-
-  (*  *)
-  let parse_json = Jsn.parse AppMention.t_of_yojson
+  let id = client_msg_id
+  let chan = channel
+  let ts = ts
+  let usr = user
+  let text = text
+  let thr = thread_ts
+  (* let parse_json = Jsn.parse t_of_yojson *)
 end
 
 module AuthTest = struct
@@ -127,15 +106,17 @@ module AuthTest = struct
 end
 
 module AddReaction = struct
+  module Msg = AppMention
+
   type t = {
-    channel: string;
+    channel: AppMention.channel;
+    timestamp: AppMention.ts;
     name: string;
-    timestamp: string;
   }
   [@@deriving yojson]
 
   let react emoji parent =
-    let channel = AppMention.channel parent
+    let channel = AppMention.chan parent
     and timestamp = AppMention.ts parent in
     { channel; timestamp; name = emoji }
 

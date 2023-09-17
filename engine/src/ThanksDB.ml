@@ -1,6 +1,6 @@
 open Contract
 
-module ThanksDB : ThanksDB = struct
+module ThanksDB : THANKS_DB = struct
   type t
   type 'a io = 'a Lwt.t
 

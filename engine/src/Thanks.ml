@@ -1,10 +1,10 @@
 open Contract
 
-module Thanks : Thanks = struct
-  module Msg = Slack.Msg
+module Thanks : THANKS = struct
+  module Msg = Slack.AppMention
   module Player = Player
   module Token = Token
-  module Txn = Txn
+  module Deposit = Deposit
 
   type id = string
   type ts = Msg.ts
@@ -21,7 +21,7 @@ module Thanks : Thanks = struct
     participants: participant list;
     sender: Player.t;
     recipients: Player.t list;
-    txns: Txn.t list;
+    deposits: Deposit.t list;
   }
   [@@deriving fields]
 end
