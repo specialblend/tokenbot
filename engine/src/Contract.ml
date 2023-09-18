@@ -62,7 +62,10 @@ module type ITEM = sig
   val token : t -> token
   val qty : t -> qty
   val make : token -> qty -> t
-  val map_qty : (qty -> qty) -> t -> t
+  val map_qty : (int -> int) -> t -> t
+
+  (* if t list contains item of same token, increase qty of element *)
+  (* it t list does not contain item of same token, insert new element *)
   val stack : t list -> t -> t list
 end
 
