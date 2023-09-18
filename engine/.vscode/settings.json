@@ -3,6 +3,7 @@
         "kind": "opam",
         "switch": "5.0.0"
     },
+    "editor.lineHeight": 1.25,
     "workbench.colorCustomizations": {
         "[*Light*]": {
             "editor.foreground": "#333"
@@ -86,7 +87,7 @@
                     "punctuation"
                 ],
                 "settings": {
-                    "foreground": "#a6a638",
+                    "foreground": "#d35628",
                     "fontStyle": "bold"
                 }
             },
