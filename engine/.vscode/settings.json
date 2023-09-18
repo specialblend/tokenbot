@@ -5,8 +5,13 @@
     },
     "workbench.colorCustomizations": {
         "editor.foreground": "#cbb497",
-        "editor.background": "#212121",
-        "editorBracketHighlight.foreground1": "#9C5A3B"
+        "editor.background": "#202020",
+        "editorBracketHighlight.foreground1": "#9C5A3B",
+        "editorBracketHighlight.foreground2": "#D2A25B",
+        "editorBracketHighlight.foreground3": "#9C5A3B",
+        "editorBracketHighlight.foreground4": "#D2A25B",
+        "editorBracketHighlight.foreground5": "#9C5A3B",
+        "editorBracketHighlight.foreground6": "#D2A25B",
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -14,7 +19,8 @@
                 "name": "Keywords",
                 "scope": "keyword",
                 "settings": {
-                    "foreground": "#bc4b22"
+                    "fontStyle": "bold",
+                    "foreground": "#bc3422"
                 }
             },
             {
