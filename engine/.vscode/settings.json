@@ -4,14 +4,15 @@
         "switch": "5.0.0"
     },
     "workbench.colorCustomizations": {
+        "statusBar.background": "#712016",
+        "editor.lineHighlightBackground": "#bc342261",
         "editor.foreground": "#cbb497",
-        "editor.background": "#202020",
+        "editor.background": "#191919",
         "editorBracketHighlight.foreground1": "#9C5A3B",
         "editorBracketHighlight.foreground2": "#D2A25B",
         "editorBracketHighlight.foreground3": "#9C5A3B",
         "editorBracketHighlight.foreground4": "#D2A25B",
         "editorBracketHighlight.foreground5": "#9C5A3B",
-        "editorBracketHighlight.foreground6": "#D2A25B",
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -26,13 +27,20 @@
             {
                 "name": "Functions",
                 "scope": [
-                    "entity.name.function",
-                    "meta.require",
-                    "support.function.any-method",
-                    "variable.function"
+                    "entity.name.function"
                 ],
                 "settings": {
                     "foreground": "#cbb497"
+                }
+            },
+            {
+                "scope": [
+                    "variable",
+                    "entity.name.type"
+                ],
+                "settings": {
+                    "foreground": "#cf534f",
+                    "fontStyle": "bold"
                 }
             },
             {
@@ -76,10 +84,10 @@
                     "punctuation"
                 ],
                 "settings": {
-                    "foreground": "#cb2e0f",
+                    "foreground": "#cb5d0f",
                     "fontStyle": "bold"
                 }
-            }
+            },
         ]
     }
 }
