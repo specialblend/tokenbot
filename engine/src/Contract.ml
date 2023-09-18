@@ -1,8 +1,9 @@
 type tz_offset = Seconds of int
 type token = Token of string
 type qty = Qty of int
+type duration = int
 
-type duration =
+type duration_input =
   | Seconds of int
   | Minutes of int
   | Hours of int
@@ -74,6 +75,7 @@ module type COOLDOWN = sig
 
   val token : t -> token
   val duration : t -> duration
+  val make : token -> duration_input -> t
   val stack : t list -> t -> t list
 end
 
