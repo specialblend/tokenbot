@@ -4,7 +4,9 @@
         "switch": "5.0.0"
     },
     "workbench.colorCustomizations": {
-        "editor.background": "#212121" // Replace with your desired background color in HEX or RGB format
+        "editor.foreground": "#cbb497",
+        "editor.background": "#212121",
+        "editorBracketHighlight.foreground1": "#9C5A3B"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -12,7 +14,7 @@
                 "name": "Keywords",
                 "scope": "keyword",
                 "settings": {
-                    "foreground": "#bc4a22"
+                    "foreground": "#bc4b22"
                 }
             },
             {
@@ -52,10 +54,26 @@
                 "name": "Comments",
                 "scope": "comment, punctuation.definition.comment",
                 "settings": {
-                    "fontStyle": "italic",
                     "foreground": "#7f848e"
                 }
             },
+            {
+                "scope": [
+                    "support"
+                ],
+                "settings": {
+                    "foreground": "#D2A25B"
+                }
+            },
+            {
+                "scope": [
+                    "punctuation"
+                ],
+                "settings": {
+                    "foreground": "#cb2e0f",
+                    "fontStyle": "bold"
+                }
+            }
         ]
     }
 }
