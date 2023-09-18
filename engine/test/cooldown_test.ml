@@ -53,12 +53,16 @@ let%test "stack inserts on coffee on a pizza" =
 let%test "stack increases coffee duration by 1 minute" =
   let items =
     [
-      Cooldown.make (Token "☕️") (Minutes 1); Cooldown.make (Token "🍕") (Hours 1);
+      Cooldown.make (Token "☕️") (Minutes 1);
+      Cooldown.make (Token "🍕") (Hours 1);
+      Cooldown.make (Token "🔥") (Seconds 45);
     ]
   in
   let item = Cooldown.make (Token "☕️") (Minutes 1) in
   let actual = Cooldown.stack items item in
   actual
   = [
-      Cooldown.make (Token "☕️") (Minutes 2); Cooldown.make (Token "🍕") (Hours 1);
+      Cooldown.make (Token "☕️") (Minutes 2);
+      Cooldown.make (Token "🍕") (Hours 1);
+      Cooldown.make (Token "🔥") (Seconds 45);
     ]
