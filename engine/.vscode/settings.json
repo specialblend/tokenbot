@@ -16,27 +16,6 @@
             "editorBracketHighlight.foreground5": "#9C5A3B",
         },
     },
-    // "workbench.colorCustomizations": {
-    //     "titleBar.activeBackground": "#232323",
-    //     "tab.inactiveBackground": "#212121",
-    //     "panel.background": "#212121",
-    //     "sideBar.background": "#212121",
-    //     "banner.background": "#212121",
-    //     "tab.activeBackground": "#212121",
-    //     "sideBar.dropBackground": "#212121",
-    //     "editorPane.background": "#212121",
-    //     "sideBarSectionHeader.background": "#212121",
-    //     "activityBar.background": "#191919",
-    //     "statusBar.background": "#712016",
-    //     "editor.lineHighlightBackground": "#bc342261",
-    //     "editor.foreground": "#cbb497",
-    //     "editor.background": "#292929",
-    //     "editorBracketHighlight.foreground1": "#9C5A3B",
-    //     "editorBracketHighlight.foreground2": "#D2A25B",
-    //     "editorBracketHighlight.foreground3": "#9C5A3B",
-    //     "editorBracketHighlight.foreground4": "#D2A25B",
-    //     "editorBracketHighlight.foreground5": "#9C5A3B",
-    // },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
             {
@@ -53,14 +32,13 @@
                     "entity.name.function"
                 ],
                 "settings": {
-                    "foreground": "#eb7f7b"
+                    "foreground": "#D2A25B"
                 }
             },
             {
                 "name": "Constants",
                 "scope": "constant",
                 "settings": {
-                    // "foreground": "#a6a638"
                     "foreground": "#b5b51a"
                 }
             },
@@ -70,7 +48,7 @@
                     "entity.name.type"
                 ],
                 "settings": {
-                    "foreground": "#e8a112",
+                    "foreground": "#e7a1a1",
                     "fontStyle": "bold"
                 }
             },
