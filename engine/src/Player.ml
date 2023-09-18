@@ -30,7 +30,6 @@ module Summary : PLAYER_SUMMARY = struct
   }
   [@@deriving fields]
 
-  (* TODO use destructure syntax *)
   let of_player (_p : Player.t) : t = assert false
 end
 

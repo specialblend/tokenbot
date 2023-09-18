@@ -6,7 +6,7 @@ module Duration = struct
   let ( + ) _x _y = assert false
 end
 
-module Cooldown : COOLDOWN = struct
+module Cooldown = struct
   type t = token * duration
 
   let token (_tok, _) = assert false

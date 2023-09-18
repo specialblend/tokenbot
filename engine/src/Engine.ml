@@ -30,6 +30,5 @@ module Engine : Engine = struct
   type published = Published of settled
   type notified = Notified of published
 
-  let _db = assert false
-  let run _ = assert false
+  let run (_ : Msg.t) = assert false
 end
