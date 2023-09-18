@@ -29,14 +29,14 @@ let%test "token with 3 hours returns 10800 second duration" =
   let cooldown = Cooldown.make (Token "🍕") (Hours 3) in
   Cooldown.duration cooldown = 10800
 
-let%test "stack inserts cofee with one minute duration" =
+let%test "stack inserts coffee with one minute duration" =
   let items = [] in
   let item = Cooldown.make (Token "☕️") (Minutes 1) in
   let expected = [ (Token "☕️", 60) ] in
   let actual = Cooldown.stack items item in
   actual = expected
 
-let%test "stack inserts cofee with one hour duration" =
+let%test "stack inserts coffee with one hour duration" =
   let items = [] in
   let item = Cooldown.make (Token "☕️") (Hours 1) in
   let expected = [ (Token "☕️", 3600) ] in
