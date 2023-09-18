@@ -3,7 +3,7 @@
         "kind": "opam",
         "switch": "5.0.0"
     },
-    "editor.lineHeight": 1.25,
+    "editor.lineHeight": 1.1,
     "workbench.colorCustomizations": {
         "[*Light*]": {
             "editor.foreground": "#333"
@@ -18,79 +18,81 @@
         },
     },
     "editor.tokenColorCustomizations": {
-        "textMateRules": [
-            {
-                "name": "Keywords",
-                "scope": "keyword",
-                "settings": {
-                    "fontStyle": "bold",
-                    "foreground": "#d34728"
-                }
-            },
-            {
-                "name": "Functions",
-                "scope": [
-                    "entity.name.function"
-                ],
-                "settings": {
-                    "foreground": "#D2A25B"
-                }
-            },
-            {
-                "name": "Constants",
-                "scope": "constant",
-                "settings": {
-                    "foreground": "#b5b51a"
-                }
-            },
-            {
-                "scope": [
-                    "variable",
-                    "entity.name.type"
-                ],
-                "settings": {
-                    "foreground": "#e7a1a1",
-                    "fontStyle": "bold"
-                }
-            },
-            {
-                "name": "Strings",
-                "scope": "string",
-                "settings": {
-                    "foreground": "#919ba8"
-                }
-            },
-            {
-                "name": "Integers",
-                "scope": "constant.numeric",
-                "settings": {
-                    "foreground": "#D2A25B"
-                }
-            },
-            {
-                "name": "Comments",
-                "scope": "comment, punctuation.definition.comment",
-                "settings": {
-                    "foreground": "#7f848e"
-                }
-            },
-            {
-                "scope": [
-                    "support"
-                ],
-                "settings": {
-                    "foreground": "#D2A25B"
-                }
-            },
-            {
-                "scope": [
-                    "punctuation"
-                ],
-                "settings": {
-                    "foreground": "#d35628",
-                    "fontStyle": "bold"
-                }
-            },
-        ]
+        "[*Dark*]": {
+            "textMateRules": [
+                {
+                    "name": "Keywords",
+                    "scope": "keyword",
+                    "settings": {
+                        "fontStyle": "bold",
+                        "foreground": "#db5e42"
+                    }
+                },
+                {
+                    "name": "Functions",
+                    "scope": [
+                        "entity.name.function"
+                    ],
+                    "settings": {
+                        "foreground": "#d6ab6a"
+                    }
+                },
+                {
+                    "name": "Constants",
+                    "scope": "constant",
+                    "settings": {
+                        "foreground": "#b5b51a"
+                    }
+                },
+                {
+                    "scope": [
+                        "variable",
+                        "entity.name.type"
+                    ],
+                    "settings": {
+                        "foreground": "#e7a1a1",
+                        "fontStyle": "bold"
+                    }
+                },
+                {
+                    "name": "Strings",
+                    "scope": "string",
+                    "settings": {
+                        "foreground": "#919ba8"
+                    }
+                },
+                {
+                    "name": "Integers",
+                    "scope": "constant.numeric",
+                    "settings": {
+                        "foreground": "#D2A25B"
+                    }
+                },
+                {
+                    "name": "Comments",
+                    "scope": "comment, punctuation.definition.comment",
+                    "settings": {
+                        "foreground": "#7f848e"
+                    }
+                },
+                {
+                    "scope": [
+                        "support"
+                    ],
+                    "settings": {
+                        "foreground": "#D2A25B"
+                    }
+                },
+                {
+                    "scope": [
+                        "punctuation"
+                    ],
+                    "settings": {
+                        "foreground": "#d35628",
+                        "fontStyle": "bold"
+                    }
+                },
+            ]
+        }
     }
 }
