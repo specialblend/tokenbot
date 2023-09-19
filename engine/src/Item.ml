@@ -1,6 +1,6 @@
 open Contract
 
-module Qty = struct
+module Q = struct
   type t = qty
 
   let ( + ) (Qty q1) (Qty q2) = Qty (q1 + q2)
@@ -9,10 +9,8 @@ end
 module Item = struct
   type t = token * qty
 
-  let token (Token emoji, _) = Token emoji
+  let token (tok, _) = tok
   let qty (_, q) = q
-
-  (*  *)
   let make token qty = (token, qty)
   let map_qty fn (token, Qty q) = (token, Qty (fn q))
 
@@ -20,7 +18,7 @@ module Item = struct
     let token, qty = item in
     match List.assoc_opt token items with
     | None -> item :: items
-    | Some qty' -> (token, Qty.(qty + qty')) :: List.remove_assoc token items
+    | Some qty' -> (token, Q.(qty + qty')) :: List.remove_assoc token items
 end
 
 include Item
