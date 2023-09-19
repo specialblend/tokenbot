@@ -21,7 +21,7 @@ module Deposit = struct
     {
       item = Item.make Item.(Token emoji) qty;
       player = PlayerSummary.of_player player;
-      cooldown = cooldown |> Option.map Cooldown.seconds;
+      cooldown = Option.map Cooldown.seconds cooldown;
       about;
     }
 end
