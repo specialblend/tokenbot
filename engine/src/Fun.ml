@@ -39,18 +39,16 @@ module List = struct
     | [] -> None
     | h :: _ -> Some h
 
-  let group_by lens items =
-    let stack pairs item =
-      let key = lens item in
-      let items' =
-        match assoc_opt key pairs with
-        | Some items -> item :: items
-        | None -> item :: []
-      in
-      (key, items') :: remove_assoc key pairs
+  let stack lens pairs item =
+    let key = lens item in
+    let value =
+      match assoc_opt key pairs with
+      | Some items -> item :: items
+      | None -> item :: []
     in
-    fold_left stack [] items
+    (key, value) :: remove_assoc key pairs
 
+  let group_by lens items = fold_left (stack lens) [] items
   let map_ignore fn = map (fn >> ignore)
   let reject fn = filter (fn >> not)
 
