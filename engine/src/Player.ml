@@ -1,36 +1,36 @@
-open Contract
+open Fun
 
-module Player : PLAYER = struct
-  type id = string
+module Player = struct
+  type id = string [@@deriving yojson]
 
   module Item = Item
   module Cooldown = Cooldown
 
   type t = {
-    id: id;
+    id: id; [@main]
     name: id;
-    base_score: int;
-    bonus_score: int;
-    luck: int;
-    inventory: Item.t list;
-    cooldowns: Cooldown.t list;
-    is_bot: bool;
+    base_score: int; [@default 0]
+    bonus_score: int; [@default 0]
+    luck: int; [@default 0]
+    inventory: Item.t list; [@default []]
+    cooldowns: Cooldown.t list; [@default []]
+    is_bot: bool; [@default false]
   }
-  [@@deriving fields]
+  [@@deriving fields, make, yojson]
 end
 
-module Summary : PLAYER_SUMMARY = struct
+module Summary = struct
   module Player = Player
 
-  type id = Player.id
+  type id = Player.id [@@deriving yojson]
 
   type t = {
     id: id;
     name: string;
   }
-  [@@deriving fields]
+  [@@deriving fields, yojson]
 
-  let of_player (_p : Player.t) : t = assert false
+  let of_player Player.{ id; name } : t = { id; name }
 end
 
 include Player

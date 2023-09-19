@@ -1,13 +1,3 @@
-type tz_offset = Seconds of int
-type token = Token of string
-type qty = Qty of int
-type duration = int
-
-type duration_input =
-  | Seconds of int
-  | Minutes of int
-  | Hours of int
-
 module type USER = sig
   type t
   type id
@@ -59,23 +49,30 @@ end
 
 module type ITEM = sig
   type t
+  type token
 
   val token : t -> token
-  val qty : t -> qty
-  val make : token -> qty -> t
+  val qty : t -> int
+  val make : token -> int -> t
   val map_qty : (int -> int) -> t -> t
 
-  (* if t list contains item of same token, increase qty of element *)
-  (* it t list does not contain item of same token, insert new element *)
+  (* if list already contains token, increase qty *)
+  (* otherwise, insert new element *)
   val stack : t list -> t -> t list
 end
 
 module type COOLDOWN = sig
   type t
+  type token
+
+  type duration =
+    | Seconds of int
+    | Minutes of int
+    | Hours of int
 
   val token : t -> token
-  val duration : t -> duration
-  val make : token -> duration_input -> t
+  val duration : t -> int
+  val make : token -> duration -> t
   val stack : t list -> t -> t list
 end
 
@@ -110,11 +107,11 @@ end
 module type DEPOSIT = sig
   type t
 
-  module Player : PLAYER_SUMMARY
+  module PlayerSummary : PLAYER_SUMMARY
   module Item : ITEM
   module Cooldown : COOLDOWN
 
-  val player : t -> Player.t
+  val player_summary : t -> PlayerSummary.t
   val item : t -> Item.t
   val cooldown : t -> Cooldown.t option
   val about : t -> string option
@@ -133,7 +130,7 @@ module type THANKS = sig
     | Recipient of Player.t
 
   val id : t -> id
-  val tokens : t -> token list
+  val tokens : t -> Deposit.Item.token list
   val msg : t -> Msg.t
   val sender : t -> Player.t
   val recipients : t -> Player.t list

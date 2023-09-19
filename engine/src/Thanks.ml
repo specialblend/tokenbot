@@ -16,7 +16,7 @@ module Thanks : THANKS = struct
   type t = {
     id: id;
     timestamp: ts;
-    tokens: token list;
+    tokens: Deposit.Item.token list;
     msg: Msg.t;
     participants: participant list;
     sender: Player.t;

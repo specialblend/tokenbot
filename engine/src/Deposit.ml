@@ -1,17 +1,29 @@
-open Contract
+open Fun
 
-module Deposit : DEPOSIT = struct
-  module Player = Player.Summary
+module Deposit = struct
+  module PlayerSummary = Player.Summary
   module Item = Item
   module Cooldown = Cooldown
 
   type t = {
     item: Item.t;
-    player: Player.t;
+    player_summary: PlayerSummary.t;
     cooldown: Cooldown.t option;
     about: string option;
   }
-  [@@deriving fields]
+  [@@deriving fields, yojson]
+
+  let token = item >> Item.token
+  let qty = item >> Item.qty
+  let player_id = player_summary >> PlayerSummary.id
+
+  let give ?(qty = 0) ?about ?cooldown player emoji =
+    {
+      item = Item.make Item.(Token emoji) qty;
+      player_summary = PlayerSummary.of_player player;
+      cooldown;
+      about;
+    }
 end
 
 include Deposit
