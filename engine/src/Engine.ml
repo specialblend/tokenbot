@@ -4,7 +4,7 @@ module Receptionist = struct
   let _scan _msg = assert false
 end
 
-module Engine : Engine = struct
+module Engine : ENGINE = struct
   type 'a io
 
   module Item = Item

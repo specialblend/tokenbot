@@ -159,7 +159,7 @@ module type PLAYER_DB = sig
   val put : t -> Player.t -> unit io
 end
 
-module type Engine = sig
+module type ENGINE = sig
   type 'a io
 
   module Item : ITEM
