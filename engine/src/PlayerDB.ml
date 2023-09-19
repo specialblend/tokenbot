@@ -1,13 +1,11 @@
-open Contract
-
-module PlayerDB : PLAYER_DB = struct
+module PlayerDB = struct
   type t
   type 'a io
 
   module Player = Player
 
-  let get _db (_id : Player.id) = assert false
-  let put _db (_p : Player.t) = assert false
+  let get _db _id = assert false
+  let put _db _player = assert false
 end
 
 include PlayerDB

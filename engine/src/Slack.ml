@@ -3,7 +3,7 @@ open Fun.Let_syntax
 
 exception Failed of string
 
-module Request = struct
+module Req = struct
   let headers token =
     Cohttp.Header.of_list
       [
@@ -13,7 +13,7 @@ module Request = struct
       ]
 end
 
-module Response = struct
+module Res = struct
   type t = {
     ok: bool;
     error: string option; [@yojson.default None]
@@ -77,26 +77,6 @@ module Msg = struct
   let thread = thread_ts
 end
 
-module AuthTest = struct
-  type t = {
-    url: string;
-    team: string;
-    user: string;
-    team_id: string;
-    user_id: string;
-    bot_id: string option; [@yojson.optional]
-  }
-  [@@yojson.allow_extra_fields] [@@deriving yojson]
-
-  let get ~token:_ = assert false
-
-  (* let get ~token =
-     let uri = Uri.of_string "https://slack.com/api/auth.test"
-     and headers = Request.headers token in
-     let@ data = Fetch.get_json ~uri ~headers in
-     data |> Response.parse_ok |> Result.flat_map (trap t_of_yojson) *)
-end
-
 module PostMsg = struct
   module Msg = Msg
 
@@ -113,11 +93,11 @@ module PostMsg = struct
   let post ~thread ~token ~channel ~text =
     let t = { channel; thread_ts = thread; text } in
     let uri = Uri.of_string "https://slack.com/api/chat.postMessage"
-    and headers = Request.headers token
+    and headers = Req.headers token
     and json = yojson_of_t t in
 
     let@ data = Fetch.post_json ~uri ~headers ~json in
-    data |> Response.parse_ok |> Result.map ignore
+    data |> Res.parse_ok |> Result.map ignore
 
   let _reply text parent =
     let channel = Msg.channel parent
@@ -133,11 +113,29 @@ module UserInfo = struct
     and params = [ ("user", [ id ]) ] in
 
     let uri = Uri.add_query_params base_uri params
-    and headers = Request.headers token in
+    and headers = Req.headers token in
 
     let@ data = Fetch.get_json ~uri ~headers in
     data
-    |> Response.parse_ok
+    |> Res.parse_ok
     |> Result.flat_map (trap t_of_yojson)
     |> Result.map (fun { user } -> user)
+end
+
+module AuthTest = struct
+  type t = {
+    url: string;
+    team: string;
+    user: string;
+    team_id: string;
+    user_id: string;
+    bot_id: string option; [@yojson.optional]
+  }
+  [@@yojson.allow_extra_fields] [@@deriving yojson]
+
+  let get ~token =
+    let uri = Uri.of_string "https://slack.com/api/auth.test"
+    and headers = Req.headers token in
+    let@ data = Fetch.get_json ~uri ~headers in
+    data |> Res.parse_ok |> Result.flat_map (trap t_of_yojson)
 end
