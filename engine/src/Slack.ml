@@ -67,7 +67,7 @@ module AppMention = struct
   [@@deriving ord, fields, make, show { with_path = false }, yojson]
   [@@yojson.allow_extra_fields]
 
-  let parse_json = Jsn.parse t_of_yojson
+  let parse_json = Json.parse t_of_yojson
 end
 
 module AuthTest = struct

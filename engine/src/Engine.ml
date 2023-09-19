@@ -145,10 +145,10 @@ module Engine = struct
     in
     msg
     |> construct
-    |> Lwt.map (Opt.to_res (Failure "invalid message"))
+    |> Lwt.map (Option.to_res (Failure "invalid message"))
     |> Lwt.map (Result.map (fun thanks -> execute thanks))
     |> Lwt.map (Result.tap (fun thanks -> publish thanks))
-    |> Lwt_res.flat_map (fun thanks -> notify thanks)
+    |> Lwt_result.flat_map (fun thanks -> notify thanks)
 end
 
 include Engine

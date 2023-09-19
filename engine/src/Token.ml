@@ -1,7 +1,4 @@
-open Fun
 open System
-
-(**)
 module Duration = Clock.Duration
 
 let points = function
@@ -68,10 +65,10 @@ let givable = function
 let luck_bonus = [ "🌮"; "🍻"; "☕️"; "🎃"; "🌶️"; "🔥"; "🍀"; "🍉" ]
 
 let roll_one tokens ~dice =
-  let tokens = Arr.of_list tokens in
-  let n = Arr.length tokens in
+  let tokens = Array.of_list tokens in
+  let n = Array.length tokens in
   let i = dice n - 1 in
-  try Arr.get tokens i with
+  try Array.get tokens i with
   | _ -> "🌮"
 
 let roll_many tokens ~qty ~dice =

@@ -7,7 +7,7 @@ module Cooldown = Item.Cooldown
 module DB = struct
   let scan_cooldowns player ~db =
     let parse_cooldown =
-      let parse = Jsn.parse_opt Cooldown.t_of_yojson in
+      let parse = Json.parse_opt Cooldown.t_of_yojson in
       Option.flat_map (fun json -> parse json)
     in
     match
@@ -26,7 +26,7 @@ module DB = struct
       let token, ttl = cooldown in
       let key = Fmt.sprintf "cooldown:%s:%s" id token in
       cooldown
-      |> Jsn.stringify Cooldown.yojson_of_t
+      |> Json.stringify Cooldown.yojson_of_t
       |> Result.flat_map (Red.setex db key ttl)
     in
     Result.all (List.map set cooldowns)
@@ -36,7 +36,7 @@ module DB = struct
       | None -> Ok None
       | Some data ->
           data
-          |> Jsn.parse Player.t_of_yojson
+          |> Json.parse Player.t_of_yojson
           |> Result.map (fun player -> scan_cooldowns player ~db)
           |> Result.map (fun player -> Some player)
     in
@@ -51,7 +51,7 @@ module DB = struct
   let set_player player ~db =
     let key = Fmt.sprintf "player:%s" (Player.id player) in
     player
-    |> Jsn.stringify Player.yojson_of_t
+    |> Json.stringify Player.yojson_of_t
     |> Result.flat_map (fun json -> Red.set db key json)
     |> Result.flat_map (fun _ -> set_cooldowns player ~db)
 
@@ -82,7 +82,7 @@ module DB = struct
     let key = Fmt.sprintf "thanks:%s" (Thanks.id thx) in
     thx
     |> Thanks.summary
-    |> Jsn.stringify Thanks.Summary.yojson_of_t
+    |> Json.stringify Thanks.Summary.yojson_of_t
     |> Result.flat_map (Red.set db key)
     |> Result.map ignore
 
