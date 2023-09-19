@@ -36,12 +36,13 @@ end
 module type POST_MESSAGE = sig
   module Msg : MESSAGE
 
+  type t
   type 'a promise
   type token
 
   val post :
+    t ->
     thread:Msg.thread option ->
-    token:token ->
     channel:Msg.channel ->
     text:string ->
     unit promise
