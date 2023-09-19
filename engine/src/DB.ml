@@ -6,19 +6,18 @@ module Cooldown = Item.Cooldown
 
 module DB = struct
   let scan_cooldowns player ~db =
-    let parse =
-      let parse1 = Jsn.parse_opt Cooldown.t_of_yojson in
-      Lst.filter_map (function
-        | None -> None
-        | Some cooldown -> parse1 cooldown)
+    let parse_cooldown =
+      let parse = Jsn.parse_opt Cooldown.t_of_yojson in
+      Option.flat_map (fun json -> parse json)
     in
-    player
-    |> Player.id
-    |> Fmt.sprintf "cooldown:%s:*"
-    |> Red.scan_pattern db ~count:32
-    |> Res.flat_map (fun key -> Red.mget_safe db key)
-    |> Res.map (fun cooldowns -> parse cooldowns)
-    |> function
+    match
+      player
+      |> Player.id
+      |> Fmt.sprintf "cooldown:%s:*"
+      |> Red.scan_pattern db ~count:32
+      |> Result.flat_map (Red.mget_safe db)
+      |> Result.map (List.filter_map parse_cooldown)
+    with
     | Ok cooldowns -> { player with cooldowns }
     | _ -> player
 
@@ -28,9 +27,9 @@ module DB = struct
       let key = Fmt.sprintf "cooldown:%s:%s" id token in
       cooldown
       |> Jsn.stringify Cooldown.yojson_of_t
-      |> Res.flat_map (fun json -> Red.setex db key ttl json)
+      |> Result.flat_map (Red.setex db key ttl)
     in
-    Res.all (Lst.map set cooldowns)
+    Result.all (List.map set cooldowns)
 
   let get_player id ~db =
     let parse = function
@@ -38,12 +37,12 @@ module DB = struct
       | Some data ->
           data
           |> Jsn.parse Player.t_of_yojson
-          |> Res.map (fun player -> scan_cooldowns player ~db)
-          |> Res.map (fun player -> Some player)
+          |> Result.map (fun player -> scan_cooldowns player ~db)
+          |> Result.map (fun player -> Some player)
     in
     Fmt.sprintf "player:%s" id
     |> Red.get db
-    |> Res.flat_map (fun json -> parse json)
+    |> Result.flat_map (fun json -> parse json)
 
   let fetch_player id ~token =
     let@! user = Slack.UserInfo.get id ~token in
@@ -53,8 +52,8 @@ module DB = struct
     let key = Fmt.sprintf "player:%s" (Player.id player) in
     player
     |> Jsn.stringify Player.yojson_of_t
-    |> Res.flat_map (fun json -> Red.set db key json)
-    |> Res.flat_map (fun _ -> set_cooldowns player ~db)
+    |> Result.flat_map (fun json -> Red.set db key json)
+    |> Result.flat_map (fun _ -> set_cooldowns player ~db)
 
   let lookup_player ~token ~db id =
     match get_player id ~db with
@@ -62,7 +61,7 @@ module DB = struct
     | _ ->
         let@ res = fetch_player id ~token in
         res
-        |> Res.to_option
+        |> Result.to_option
         |> Option.map (fun player -> set_player ~db |> always player)
 
   let lpush_thanks thx ~db =
@@ -75,17 +74,17 @@ module DB = struct
     in
     thx
     |> Thanks.everyone
-    |> Lst.map push
-    |> Lst.cons (Red.lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
-    |> Res.all
+    |> List.map push
+    |> List.cons (Red.lpush_rotate "thanks:@root" ~id ~limit:100 ~db)
+    |> Result.all
 
   let set_thanks thx ~db =
     let key = Fmt.sprintf "thanks:%s" (Thanks.id thx) in
     thx
     |> Thanks.summary
     |> Jsn.stringify Thanks.Summary.yojson_of_t
-    |> Res.flat_map (Red.set db key)
-    |> Res.map (fun res -> ignore res)
+    |> Result.flat_map (Red.set db key)
+    |> Result.map ignore
 
   let zadd_scores players ~db =
     let map_score fn player =
@@ -95,14 +94,14 @@ module DB = struct
     in
     let*! () =
       players
-      |> Lst.map (map_score Player.total_score)
+      |> List.map (map_score Player.total_score)
       |> Red.zadd db "scores"
-      |> Res.map ignore
+      |> Result.map ignore
     and*! () =
       players
-      |> Lst.map (map_score Player.highscore)
+      |> List.map (map_score Player.highscore)
       |> Red.zadd db "highscores"
-      |> Res.map ignore
+      |> Result.map ignore
     in
     ()
 
@@ -111,7 +110,7 @@ module DB = struct
     let*! () = lpush_thanks thx ~db
     and*! () = set_thanks thx ~db
     and*! () = zadd_scores players ~db
-    and*! () = players |> Lst.map (set_player ~db) |> Res.all in
+    and*! () = players |> List.map (set_player ~db) |> Result.all in
     ()
 end
 

@@ -1,6 +1,7 @@
 open Fun
 module R = Redis_sync.Client
 
+let ( //: ) s1 s2 = s1 ^ ":" ^ s2
 let get = trap2 R.get
 let lpush = trap3 R.lpush
 let ltrim db = trap3 (R.ltrim db)
@@ -28,4 +29,4 @@ let lpush_rotate key ~id ~db ~limit =
     | len when len >= limit -> ltrim db key 0 len
     | _ -> Ok ()
   in
-  lpush db key [ id ] |> Res.flat_map trim
+  lpush db key [ id ] |> Result.flat_map trim
