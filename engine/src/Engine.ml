@@ -8,7 +8,7 @@ module Cooldown = Item.Cooldown
 type rule = Thanks.t -> Deposit.t list -> Deposit.t list
 
 module Cashier = struct
-  let collect_deposits thanks ~(rules : rule list) =
+  let collect_deposits thanks ~rules =
     rules |> List.fold_left (fun deposits rule -> rule thanks deposits) []
 
   let stack_items deposits items =
