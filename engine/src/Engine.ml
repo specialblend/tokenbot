@@ -12,8 +12,6 @@ module Engine : Engine = struct
   module Player = Player
   module Thanks = Thanks
   module Deposit = Deposit
-
-  (*  *)
   module ThanksDB = ThanksDB
   module PlayerDB = PlayerDB
 

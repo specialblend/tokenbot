@@ -13,11 +13,12 @@ module Cooldown = struct
   let token (token, _) = token
   let duration (_, seconds) = seconds
 
-  let make token duration =
-    match duration with
-    | Seconds s -> (token, s)
-    | Minutes m -> (token, m * 60)
-    | Hours h -> (token, h * 60 * 60)
+  let seconds = function
+    | Seconds s -> s
+    | Minutes m -> m * 60
+    | Hours h -> h * 60 * 60
+
+  let make token duration = (token, seconds duration)
 
   let stack cooldowns ((token, seconds) as item) =
     match List.assoc_opt token cooldowns with

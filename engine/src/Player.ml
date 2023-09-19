@@ -30,7 +30,7 @@ module Summary = struct
   }
   [@@deriving fields, yojson]
 
-  let of_player Player.{ id; name } : t = { id; name }
+  let of_player Player.{ id; name } = { id; name }
 end
 
 include Player

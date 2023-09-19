@@ -1,21 +1,15 @@
-(**)
 include Ppx_yojson_conv_lib.Yojson_conv.Primitives
 include Sexplib.Std
-
-(**)
 open System
 
-(**)
 let ( >> ) f g x = g (f x)
-
-(**)
 let always x _ = x
 let between (a, b) x = x >= a && x < b
 let clamp (lower, upper) n = max lower (min upper n)
 let fmt = Format.sprintf
 let tap fn x = x |> fn |> always x
 
-(* trap: try, catch, wrap *)
+(* trap = try, catch, wrap *)
 let trap f x =
   try Ok (f x) with
   | e -> Error e
@@ -31,8 +25,6 @@ let trap3 f x y z =
 let trap_opt f x =
   try Some (f x) with
   | _ -> None
-
-(**)
 
 module Str = struct
   include Str
@@ -112,7 +104,6 @@ module Lwt_result = struct
   let flat_map f t = bind t f
 end
 
-(**)
 module Json = struct
   module J = Yojson.Safe
 
@@ -139,29 +130,29 @@ module Infix_syntax = struct
 end
 
 module Let_syntax = struct
-  (**)
+  (* promise *)
   let ( let@ ) = Lwt.Syntax.( let+ )
   let ( and@ ) = Lwt.Syntax.( and+ )
   let ( let* ) = Lwt.Syntax.( let* )
   let ( and* ) = Lwt.Syntax.( and* )
 
-  (**)
+  (* result *)
   let ( let*! ) x f = Result.map f x
   let ( and*! ) = Result.both
   let ( let*!! ) = Result.bind
 
-  (**)
+  (* option*)
   let ( let*? ) x f = Option.map f x
   let ( and*? ) = Option.both
   let ( let*?? ) = Option.bind
 
-  (**)
+  (* result promise *)
   let ( let@! ) x f = Lwt.map (Result.map f) x
   let ( and@! ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Result.both a b) y)
   let ( let@!* ) x f = Lwt.map (Result.flat_map f) x
   let ( and@!* ) = ( and@! )
 
-  (**)
+  (* option promise *)
   let ( let@? ) x f = Lwt.map (Option.map f) x
   let ( and@? ) x y = Lwt.bind x (fun a -> Lwt.map (fun b -> Option.both a b) y)
   let ( let@?* ) x f = Lwt.map (Option.flat_map f) x

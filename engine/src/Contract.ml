@@ -113,7 +113,7 @@ module type DEPOSIT = sig
 
   val player_summary : t -> PlayerSummary.t
   val item : t -> Item.t
-  val cooldown : t -> Cooldown.t option
+  val cooldown : t -> int option
   val about : t -> string option
 end
 
