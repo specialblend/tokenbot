@@ -1,13 +1,17 @@
 open Fun
-open System
-
-(**)
-module Duration = Clock.Duration
 
 let points = function
-  (* TODO *)
+  | "🌮" -> 1
+  | "🍻" -> 1
+  | "☕️" -> 1
+  | "🍀" -> 1
+  | "🎃" -> 1
   | "🌶️" -> 3
   | "🔥" -> 7
+  | "🍉" -> 13
+  | "🏷️" -> 0
+  | "🎁" -> 0
+  | "💀" -> -5
   | _ -> 0
 
 let bonus = function
@@ -22,8 +26,8 @@ let luck = function
   | _ -> 0
 
 let cooldown = function
-  | "🌶️" -> Some (Duration.hours 8)
-  | "🔥" -> Some (Duration.hours 120)
+  | "🌶️" -> Some (Cooldown.Hours 8)
+  | "🔥" -> Some (Cooldown.Hours 120)
   | _ -> None
 
 let about = function
