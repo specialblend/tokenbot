@@ -485,14 +485,14 @@ module Happy_hour_test = struct
   let recipient1 = Player.make "example_recipient1"
   let recipient2 = Player.make "example_recipient2"
   let recipients = [ recipient1; recipient2 ]
-  let ts_of_hour n = fmt "%d.000000" (n * 3600)
+  let ts_of_hour n = Fmt.sprintf "%d.000000" (n * 3600)
 
   let print_hours thx =
     thx
     |> Thanks.everyone
     |> List.iter (fun player ->
            let hour = Clock.hour (Thanks.local_time thx player) in
-           print_endline (fmt "%s -> %d" (Player.id player) hour))
+           print_endline (Fmt.sprintf "%s -> %d" (Player.id player) hour))
 
   let%expect_test "no 🍻 before 1600 hours" =
     let ts = ts_of_hour 15 in
@@ -625,7 +625,7 @@ module St_paddy_test = struct
         let id = Player.id player in
         let now = Thanks.local_time thanks player in
         let month, mday = Clock.(month now, mday now) in
-        print_endline (fmt "%s -> %d/%d" id month mday))
+        print_endline (Fmt.sprintf "%s -> %d/%d" id month mday))
       (Thanks.everyone thanks)
 
   let%expect_test "no 🍀 before 3/17" =
@@ -724,7 +724,7 @@ module Halloween_test = struct
         let id = Player.id player in
         let now = Thanks.local_time thanks player in
         let month, mday = Clock.(month now, mday now) in
-        print_endline (fmt "%s -> %d/%d" id month mday))
+        print_endline (Fmt.sprintf "%s -> %d/%d" id month mday))
       (Thanks.everyone thanks)
 
   let%expect_test "no 🎃 before 10/21" =
@@ -842,7 +842,7 @@ module Holiday_season_test = struct
         let id = Player.id player in
         let now = Thanks.local_time thanks player in
         let month, mday = Clock.(month now, mday now) in
-        print_endline (fmt "%s -> %d/%d" id month mday))
+        print_endline (Fmt.sprintf "%s -> %d/%d" id month mday))
       (Thanks.everyone thanks)
 
   let%expect_test "no 🎁 before 12/21" =
@@ -960,7 +960,7 @@ module Navruz_test = struct
         let id = Player.id player in
         let now = Thanks.local_time thanks player in
         let month, mday = Clock.(month now, mday now) in
-        print_endline (fmt "%s -> %d/%d" id month mday))
+        print_endline (Fmt.sprintf "%s -> %d/%d" id month mday))
       (Thanks.everyone thanks)
 
   let%expect_test "no 🔥 before 3/21" =
@@ -1072,7 +1072,7 @@ module Lucky_test = struct
       (fun player ->
         let id = Player.id player in
         let luck = Player.luck player in
-        print_endline (fmt "%s -> %d" id luck))
+        print_endline (Fmt.sprintf "%s -> %d" id luck))
       (Thanks.everyone thanks)
 
   let%expect_test "no 🎁 when luck is 0 and dice rolls 1" =

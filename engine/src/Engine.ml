@@ -72,20 +72,20 @@ module Receptionist = struct
     |> List.filter_map (fun word -> parse_emoji word)
     |> Str.dedupe
 
-  let mention player = fmt "<@%s>" (Player.id player)
+  let mention player = Fmt.sprintf "<@%s>" (Player.id player)
 
   let fmt_qty = function
-    | qty when qty >= 0 -> fmt "%i" qty
-    | qty -> fmt "(%i)" qty
+    | qty when qty >= 0 -> Fmt.sprintf "%i" qty
+    | qty -> Fmt.sprintf "(%i)" qty
 
   let fmt_deposit Deposit.{ item = token, qty; about; cooldown } =
     let q = fmt_qty qty in
     match cooldown with
-    | None -> fmt "%s `x%s %s`" token q about
+    | None -> Fmt.sprintf "%s `x%s %s`" token q about
     | Some duration ->
         duration
         |> Cooldown.format
-        |> fmt "%s `x%s %s (cooldown: %s)`" token q about
+        |> Fmt.sprintf "%s `x%s %s (cooldown: %s)`" token q about
 
   let fmt_group (player, deposits) =
     deposits

@@ -1,18 +1,11 @@
-(**)
 include Ppx_yojson_conv_lib.Yojson_conv.Primitives
 include Sexplib.Std
-
-(**)
 open System
 
-(**)
 let ( >> ) f g x = g (f x)
-
-(**)
 let always x _ = x
 let between (a, b) x = x >= a && x < b
 let clamp (lower, upper) n = max lower (min upper n)
-let fmt = Format.sprintf
 let tap fn x = x |> fn |> always x
 
 (* trap: try, catch, wrap *)

@@ -9,12 +9,12 @@ module Cooldown = struct
     | n -> (n / 3600, `Hours)
 
   let fmt = function
-    | 1, `Seconds -> fmt "%d+ second" 1
-    | n, `Seconds -> fmt "~%d seconds" n
-    | 1, `Minutes -> fmt "%d+ minute" 1
-    | n, `Minutes -> fmt "~%d minutes" n
-    | 1, `Hours -> fmt "%d+ hour" 1
-    | n, `Hours -> fmt "~%d hours" n
+    | 1, `Seconds -> Fmt.sprintf "%d+ second" 1
+    | n, `Seconds -> Fmt.sprintf "~%d seconds" n
+    | 1, `Minutes -> Fmt.sprintf "%d+ minute" 1
+    | n, `Minutes -> Fmt.sprintf "~%d minutes" n
+    | 1, `Hours -> Fmt.sprintf "%d+ hour" 1
+    | n, `Hours -> Fmt.sprintf "~%d hours" n
 
   let format = normalize >> fmt
 
@@ -29,7 +29,7 @@ module Item = struct
   type t = string * int [@@deriving ord, yojson]
 
   let pp fmt (token, qty) = Format.fprintf fmt "(\"%s\", %d)" token qty
-  let show (token, qty) = fmt "(\"%s\", %d)" token qty
+  let show (token, qty) = Fmt.sprintf "(\"%s\", %d)" token qty
   let make ?(qty = 1) token = (token, qty)
   let map_qty fn (token, qty) = (token, fn qty)
 
