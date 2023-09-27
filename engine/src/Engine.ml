@@ -1,7 +1,5 @@
 open Fun
 open Fun.Let_syntax
-
-(**)
 module Deposit = Thanks.Deposit
 module Cooldown = Item.Cooldown
 

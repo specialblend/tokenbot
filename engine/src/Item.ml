@@ -21,14 +21,13 @@ module Cooldown = struct
   let describe (token, cooldown) =
     Fmt.sprintf "cooldown warning for %s (%s)" token (format cooldown)
 
-  let pp fmt (token, duration) =
-    Format.fprintf fmt "(\"%s\", %d)" token duration
+  let pp fmt (token, duration) = Fmt.fprintf fmt "(\"%s\", %d)" token duration
 end
 
 module Item = struct
   type t = string * int [@@deriving ord, yojson]
 
-  let pp fmt (token, qty) = Format.fprintf fmt "(\"%s\", %d)" token qty
+  let pp fmt (token, qty) = Fmt.fprintf fmt "(\"%s\", %d)" token qty
   let show (token, qty) = Fmt.sprintf "(\"%s\", %d)" token qty
   let make ?(qty = 1) token = (token, qty)
   let map_qty fn (token, qty) = (token, fn qty)
