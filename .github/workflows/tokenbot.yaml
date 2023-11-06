@@ -1,0 +1,64 @@
+name: Tokenbot
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+  # release:
+  #   types: [published]
+
+jobs:
+
+  tokenbot-web:
+    name: "Tokenbot (Web)"
+    uses: FishtechCSOC/github-actions/.github/workflows/standard-pipeline.yaml@main
+    with:
+      IMAGE: tokenbot/web
+      CONTEXT_PATH: ./
+      DOCKERFILE_PATH: ./web.Dockerfile
+      CHART_PATH: ./charts/tokenbot
+      BUILD_CODE_ON_RELEASE: true
+      PACKAGE_CHART_ON_RELEASE: true
+      SKIP_IMAGE: false
+      SKIP_CHART: false
+      SKIP_ARGOCD: true
+    secrets: inherit
+
+  tokenbot-bot:
+    name: "Tokenbot (Bot)"
+    uses: FishtechCSOC/github-actions/.github/workflows/standard-pipeline.yaml@main
+    with:
+      IMAGE: tokenbot/web
+      CONTEXT_PATH: ./
+      DOCKERFILE_PATH: ./bot.Dockerfile
+      BUILD_CODE_ON_RELEASE: true
+      SKIP_IMAGE: false
+      SKIP_CHART: true
+      SKIP_ARGOCD: true
+    secrets: inherit
+
+  deploy:
+    name: "Deploy to ArgoCD"
+    uses: FishtechCSOC/github-actions/.github/workflows/standard-pipeline.yaml@main
+    needs:
+      - tokenbot-web
+      - tokenbot-bot
+    with:
+      SKIP_IMAGE: true
+      SKIP_CHART: true
+      SKIP_ARGOCD: false
+      CHART_PATH: ./charts/tokenbot
+      ARGOCD_APP_NAME: gke-codeathon-development.tokenbot
+      ARGOCD_RELEASE_NAME: tokenbot
+      ARGOCD_PROJECT: tokenbot
+      ARGOCD_DEST_NAMESPACE: tokenbot
+      ARGOCD_DEST_SERVER_DEV: gke-codeathon-development
+      ARGOCD_API_URL_DEV: argocd.dev-cyderes.io
+      ARGOCD_VALUES_FILE_DEV: values-dev.yaml
+      ARGOCD_DEPLOYMENT_RESTART: false
+    secrets: inherit

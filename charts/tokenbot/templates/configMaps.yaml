@@ -1,0 +1,21 @@
+{{- with .Values.bot -}}
+{{- if .configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .configMap.name | default "tokenbot-bot-cm" }}
+data:
+{{- .configMap.data | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}
+---
+{{- with .Values.web -}}
+{{- if .configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .configMap.name | default "tokenbot-web-cm" }}
+data:
+{{- .configMap.data | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,19 @@
+---
+{{ with .Values.web -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tokenbot.fullname" $ }}-web
+  labels:
+    {{- include "tokenbot.labels" $ | nindent 4 }}
+spec:
+  type: {{ .service.type }}
+  ports:
+    - port: {{ .service.port }}
+      targetPort: web
+      protocol: TCP
+      name: web
+  selector:
+    {{- include "tokenbot.selectorLabels" $ | nindent 4 -}}
+    {{ .service.selectorLabels | toYaml | nindent 4 }}
+{{- end -}}

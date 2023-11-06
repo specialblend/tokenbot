@@ -1,0 +1,127 @@
+{{- $AppVersion := $.Chart.AppVersion -}}
+{{- with .Values.bot -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tokenbot.fullname" $ }}-bot
+  labels:
+    {{- include "tokenbot.labels" $ | nindent 4 }}
+spec:
+  {{- if not .autoscaling.enabled }}
+  replicas: {{ .replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tokenbot.selectorLabels" $ | nindent 6 }}
+      {{- if .selectorLabels }}
+        {{- toYaml .selectorLabels | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tokenbot.selectorLabels" $ | nindent 8 }}
+      {{- if .selectorLabels }}
+        {{- toYaml .selectorLabels | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tokenbot.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml .podSecurityContext | nindent 8 }}
+      containers:
+        {{- include "containerSpec" 
+        (dict "AppVersion" $AppVersion 
+        "containers" .containers 
+        "configMap" .configMap 
+        "secrets" .secrets 
+        "secretData" (index .secrets "tokenbot-bot-secrets")
+        "deployment" "bot") | nindent 8 }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .volumes }}
+      volumes:
+        {{- toYaml .volumes | nindent 6 }}
+      {{- end }}
+{{- end }}
+---
+{{ with .Values.web -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tokenbot.fullname" $ }}-web
+  labels:
+    {{- include "tokenbot.labels" $ | nindent 4 }}
+spec:
+  {{- if not .autoscaling.enabled }}
+  replicas: {{ .replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tokenbot.selectorLabels" $ | nindent 6 }}
+      {{- if .selectorLabels }}
+        {{- toYaml .selectorLabels | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      {{- with .podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tokenbot.selectorLabels" $ | nindent 8 }}
+      {{- if .selectorLabels }}
+        {{- toYaml .selectorLabels | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tokenbot.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml .podSecurityContext | nindent 8 }}
+      containers:
+        {{- include "containerSpec" 
+        (dict 
+        "AppVersion" $AppVersion 
+        "containers" .containers 
+        "configMap" .configMap 
+        "secrets" .secrets 
+        "secretData" (index .secrets "tokenbot-web-secrets")
+        "deployment" "web"
+        ) | nindent 8 }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .volumes }}
+      volumes:
+        {{- toYaml .volumes | nindent 6 }}
+      {{- end }}
+{{- end -}}

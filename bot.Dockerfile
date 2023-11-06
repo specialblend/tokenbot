@@ -37,3 +37,4 @@ RUN addgroup -S tokenbot && adduser -S tokenbot -G tokenbot
 USER tokenbot
 
 CMD ["node", "main.js"]
+
