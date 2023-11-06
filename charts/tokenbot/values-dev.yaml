@@ -13,11 +13,18 @@ imagePullSecrets:
 bot:
   replicaCount: 1
   containers:
-    tokenbot-bot:
+    bot:
       image:
         repository: us-central1-docker.pkg.dev/cyderes-dev/cyderes-container-repo/tokenbot/bot
         pullPolicy: Always
         tag: "latest"
+
+  configMap:
+    name: tokenbot-bot-cm
+    data:
+      SLACK_CLIENT_ID: "4634376417136.5392353165376"
+      SLACK_TEAM_ID: "T04JNB2C940"
+      REDIS_HOST: "tokenbot-redis-headless.tokenbot.svc.cluster.local"
 
   secrets:
     tokenbot-bot-secrets:
@@ -27,7 +34,7 @@ bot:
 web:
   replicaCount: 1
   containers:
-    tokenbot-web:
+    web:
       image:
         repository: us-central1-docker.pkg.dev/cyderes-dev/cyderes-container-repo/tokenbot/web
         pullPolicy: Always
