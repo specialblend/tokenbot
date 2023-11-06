@@ -16,14 +16,14 @@ export function Scoreboard({
 }) {
   const playersIncludeMe = players.some((player) => player.id === me?.id);
   return (
-    <div className="scoreboard h-fill">
+    <div className="scoreboard md:h-[calc(100vh-3rem)">
       <table>
         <thead className="ink-muted">
           <tr>
             <th className="max-w-[1rem]">#</th>
             <th>Name</th>
             <th>Score</th>
-            <th className="hidden lg:table-cell">Tokens</th>
+            <th className="hidden sm:table-cell">Tokens</th>
           </tr>
         </thead>
         <tbody>
