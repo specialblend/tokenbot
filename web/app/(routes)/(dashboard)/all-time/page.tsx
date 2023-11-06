@@ -6,7 +6,11 @@ import useSWR from "swr";
 
 import { SplitFeedView } from "~/app/components/SplitFeedView";
 import { Scoreboard } from "~/app/components/Scoreboard/Scoreboard";
-import { Placeholder } from "~/app/components/Placeholder";
+import {
+  Placeholder,
+  PlaceholderError,
+  PlaceholderLoading,
+} from "~/app/components/Placeholder";
 
 const _10_SECONDS = 10000;
 
@@ -20,6 +24,14 @@ export default function AllTimeScoreboardPage(_: never) {
   const me = useSWR<Player>("/api/me", fetchJson);
   const players = useSWR<Player[]>("/api/highscore", fetchJson, autoRefresh);
   const feed = useSWR<Thanks[]>("/api/feed", fetchJson, autoRefresh);
+
+  if (players.isLoading || feed.isLoading) {
+    return <PlaceholderLoading />;
+  }
+
+  if (players.error || feed.error) {
+    return <PlaceholderError />;
+  }
 
   if (feed.data && feed.data.length) {
     return (

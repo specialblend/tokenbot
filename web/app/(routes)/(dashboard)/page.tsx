@@ -6,7 +6,11 @@ import useSWR from "swr";
 
 import { SplitFeedView } from "~/app/components/SplitFeedView";
 import { Scoreboard } from "~/app/components/Scoreboard/Scoreboard";
-import { Placeholder, PlaceholderLoading } from "~/app/components/Placeholder";
+import {
+  Placeholder,
+  PlaceholderError,
+  PlaceholderLoading,
+} from "~/app/components/Placeholder";
 
 const _10_SECONDS = 10000;
 
@@ -27,6 +31,10 @@ export default function ScoreboardPage(_: never) {
     return <PlaceholderLoading />;
   }
 
+  if (players.error || feed.error) {
+    return <PlaceholderError />;
+  }
+
   if (feed.data?.length) {
     return (
       <SplitFeedView feed={feed.data}>
@@ -38,8 +46,10 @@ export default function ScoreboardPage(_: never) {
       </SplitFeedView>
     );
   }
+
   if (players.data?.length) {
     return <Scoreboard players={players.data} useHighscore={false} />;
   }
+
   return <Placeholder />;
 }
