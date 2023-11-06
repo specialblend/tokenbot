@@ -1,4 +1,4 @@
-{{- with .Values.server -}}
+{{- with .Values.bot -}}
 {{- if .configMap }}
 apiVersion: v1
 kind: ConfigMap
@@ -9,7 +9,7 @@ data:
 {{- end }}
 {{- end }}
 ---
-{{- with .Values.client -}}
+{{- with .Values.web -}}
 {{- if .configMap }}
 apiVersion: v1
 kind: ConfigMap

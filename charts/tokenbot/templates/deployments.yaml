@@ -43,7 +43,7 @@ spec:
         "configMap" .configMap 
         "secrets" .secrets 
         "secretData" (index .secrets "tokenbot-bot-secrets")
-        "deployment" "server") | nindent 8 }}
+        "deployment" "bot") | nindent 8 }}
       {{- with .nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -106,7 +106,7 @@ spec:
         "configMap" .configMap 
         "secrets" .secrets 
         "secretData" (index .secrets "tokenbot-web-secrets")
-        "deployment" "client"
+        "deployment" "web"
         ) | nindent 8 }}
       {{- with .nodeSelector }}
       nodeSelector:

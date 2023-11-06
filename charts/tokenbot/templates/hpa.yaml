@@ -1,16 +1,16 @@
-{{- with .Values.server -}}
+{{- with .Values.bot -}}
 {{- if .autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "tokenbot.fullname" $ }}-server
+  name: {{ include "tokenbot.fullname" $ }}-bot
   labels:
     {{- include "tokenbot.labels" $ | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "tokenbot.fullname" $ }}-server
+    name: {{ include "tokenbot.fullname" $ }}-bot
   minReplicas: {{ .autoscaling.minReplicas }}
   maxReplicas: {{ .autoscaling.maxReplicas }}
   metrics:
