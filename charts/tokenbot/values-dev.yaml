@@ -24,7 +24,7 @@ bot:
     data:
       SLACK_CLIENT_ID: "4634376417136.5392353165376"
       SLACK_TEAM_ID: "T04JNB2C940"
-      REDIS_HOST: "tokenbot-redis-headless.tokenbot.svc.cluster.local"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
 
   secrets:
     tokenbot-bot-secrets:
@@ -45,7 +45,7 @@ web:
     data:
       SLACK_CLIENT_ID: "4634376417136.5392353165376"
       SLACK_TEAM_ID: "T04JNB2C940"
-      REDIS_HOST: "tokenbot-redis-headless.tokenbot.svc.cluster.local"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
       NEXTAUTH_URL: "https://tokenbot.dev-cyderes.io/api/auth"
 
   secrets:
