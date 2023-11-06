@@ -38,3 +38,10 @@ body {
         @apply overflow-hidden overflow-y-scroll;
     }
 }
+
+/* remove underline on tooltips */
+abbr {
+    border-bottom: none !important;
+    cursor: help !important;
+    text-decoration: none !important;
+}
