@@ -22,6 +22,7 @@ jobs:
       CONTEXT_PATH: ./
       DOCKERFILE_PATH: ./web.Dockerfile
       CHART_PATH: ./charts/tokenbot
+      HELM_DEPENDENCY_UPDATE: true
       BUILD_CODE_ON_RELEASE: true
       PACKAGE_CHART_ON_RELEASE: true
       SKIP_IMAGE: false
