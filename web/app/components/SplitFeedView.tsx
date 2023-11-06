@@ -1,7 +1,6 @@
 import type { Thanks } from "~/contract";
 import type { ReactNode } from "react";
 
-import { Spinner } from "~/app/components/Spinner";
 import { Feed } from "~/app/components/Feed";
 
 export function SplitFeedView({
