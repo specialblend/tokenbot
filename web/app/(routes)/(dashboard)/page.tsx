@@ -1,32 +1,43 @@
-"use server";
+"use client";
 
-import { getMyPlayer } from "~/io/player";
-import { getFeed, getScoreboard } from "~/io/engine";
+import type { Player, Thanks } from "~/contract";
+
+import useSWR from "swr";
+
 import { SplitFeedView } from "~/app/components/SplitFeedView";
 import { Scoreboard } from "~/app/components/Scoreboard/Scoreboard";
 import { Placeholder } from "~/app/components/Placeholder";
 
-const scoreboardSize = 10;
-const feedSize = 25;
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default async function ScoreboardPage(
-  _: never,
-  f = { getScoreboard, getFeed, getMyPlayer },
-) {
-  const [players, feed, me] = await Promise.all([
-    f.getScoreboard(scoreboardSize),
-    f.getFeed(feedSize),
-    f.getMyPlayer(),
-  ]);
-  if (feed.length) {
+export default function ScoreboardPage(_: never) {
+  const me = useSWR<Player>("/api/me", fetcher);
+  const players = useSWR<Player[]>("/api/score", fetcher, {
+    refreshInterval: 10000,
+  });
+  const feed = useSWR<Thanks[]>("/api/feed", fetcher, {
+    refreshInterval: 10000,
+  });
+
+  console.log({
+    me: me.data,
+    players: players.data,
+    feed: feed.data,
+  });
+
+  if (feed.data && feed.data.length) {
     return (
-      <SplitFeedView feed={feed}>
-        <Scoreboard me={me} players={players} useHighscore={false} />
+      <SplitFeedView feed={feed.data}>
+        <Scoreboard
+          me={me.data}
+          players={players.data ?? []}
+          useHighscore={false}
+        />
       </SplitFeedView>
     );
   }
-  if (players.length) {
-    return <Scoreboard players={players} useHighscore={false} />;
+  if (players.data && players.data.length) {
+    return <Scoreboard players={players.data} useHighscore={false} />;
   }
   return <Placeholder />;
 }
