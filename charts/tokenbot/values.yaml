@@ -28,20 +28,20 @@ bot:
         - containerPort: 80
           name: web
           protocol: TCP
-      livenessProbe:
-        httpGet:
-          path: /readiness
-          port: web
-        initialDelaySeconds: 30
-        periodSeconds: 20
-        timeoutSeconds: 10
-      readinessProbe:
-        httpGet:
-          path: /readiness
-          port: web
-        initialDelaySeconds: 30
-        periodSeconds: 20
-        timeoutSeconds: 10
+      # livenessProbe:
+      #   httpGet:
+      #     path: /readiness
+      #     port: web
+      #   initialDelaySeconds: 30
+      #   periodSeconds: 20
+      #   timeoutSeconds: 10
+      # readinessProbe:
+      #   httpGet:
+      #     path: /readiness
+      #     port: web
+      #   initialDelaySeconds: 30
+      #   periodSeconds: 20
+      #   timeoutSeconds: 10
       env:
         []
 
@@ -110,6 +110,20 @@ web:
         - containerPort: 3000
           name: web
           protocol: TCP
+      livenessProbe:
+        httpGet:
+          path: /
+          port: web
+        initialDelaySeconds: 30
+        periodSeconds: 20
+        timeoutSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /
+          port: web
+        initialDelaySeconds: 30
+        periodSeconds: 20
+        timeoutSeconds: 10
       env:
         []
 
