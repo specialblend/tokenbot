@@ -8,15 +8,18 @@ import { SplitFeedView } from "~/app/components/SplitFeedView";
 import { Scoreboard } from "~/app/components/Scoreboard/Scoreboard";
 import { Placeholder } from "~/app/components/Placeholder";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const _10_SECONDS = 10000;
+
+const autoRefresh = {
+  refreshInterval: _10_SECONDS,
+};
+
+const fetchJson = (url: string) => fetch(url).then((r) => r.json());
+
 export default function AllTimeScoreboardPage(_: never) {
-  const me = useSWR<Player>("/api/me", fetcher);
-  const players = useSWR<Player[]>("/api/highscore", fetcher, {
-    refreshInterval: 10000,
-  });
-  const feed = useSWR<Thanks[]>("/api/feed", fetcher, {
-    refreshInterval: 10000,
-  });
+  const me = useSWR<Player>("/api/me", fetchJson);
+  const players = useSWR<Player[]>("/api/highscore", fetchJson, autoRefresh);
+  const feed = useSWR<Thanks[]>("/api/feed", fetchJson, autoRefresh);
 
   if (feed.data && feed.data.length) {
     return (
@@ -29,10 +32,12 @@ export default function AllTimeScoreboardPage(_: never) {
       </SplitFeedView>
     );
   }
+
   if (players.data && players.data.length) {
     return (
       <Scoreboard me={me.data} players={players.data} useHighscore={true} />
     );
   }
+
   return <Placeholder />;
 }
