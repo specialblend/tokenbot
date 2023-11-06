@@ -48,7 +48,7 @@ export function ScoreboardEntry({
           {score_}
         </span>
       </td>
-      <td className="max-w-xs hidden lg:table-cell">
+      <td className="max-w-xs hidden sm:table-cell">
         <Inventory items={items} />
       </td>
     </tr>

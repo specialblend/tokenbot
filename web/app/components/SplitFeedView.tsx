@@ -12,9 +12,11 @@ export function SplitFeedView({
 }) {
   return (
     <div>
-      <div className="sm:flex">
-        <div className="w-full h-fill md:w-2/3 ">{children}</div>
-        <div className="w-full h-fill md:w-1/3 border-l border-primary ">
+      <div className="lg:flex">
+        <div className="w-full lg:h-[calc(100vh-3rem)] overflow-y-auto lg:w-2/3 overflow-x-hidden">
+          {children}
+        </div>
+        <div className="w-full lg:h-[calc(100vh-3rem)] overflow-y-auto lg:w-1/3 border-l border-primary ">
           <Feed data={feed} />
         </div>
       </div>
