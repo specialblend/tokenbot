@@ -167,6 +167,7 @@ module Collection = struct
       friday;
       happy_hour;
       st_paddy;
+      halloween;
       lucky ~dice;
       gift_box ~dice;
       self_penalty;
