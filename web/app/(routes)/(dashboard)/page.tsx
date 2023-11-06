@@ -6,26 +6,36 @@ import useSWR from "swr";
 
 import { SplitFeedView } from "~/app/components/SplitFeedView";
 import { Scoreboard } from "~/app/components/Scoreboard/Scoreboard";
-import { Placeholder } from "~/app/components/Placeholder";
+import {
+  Placeholder,
+  PlaceholderError,
+  PlaceholderLoading,
+} from "~/app/components/Placeholder";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const _10_SECONDS = 10000;
+
+const autoRefresh = {
+  refreshInterval: _10_SECONDS,
+};
+
+const fetchJson = (url: string) => fetch(url).then((r) => r.json());
 
 export default function ScoreboardPage(_: never) {
-  const me = useSWR<Player>("/api/me", fetcher);
-  const players = useSWR<Player[]>("/api/score", fetcher, {
-    refreshInterval: 10000,
-  });
-  const feed = useSWR<Thanks[]>("/api/feed", fetcher, {
-    refreshInterval: 10000,
-  });
+  const me = useSWR<Player>("/api/me", fetchJson);
 
-  console.log({
-    me: me.data,
-    players: players.data,
-    feed: feed.data,
-  });
+  const players = useSWR<Player[]>("/api/score", fetchJson, autoRefresh);
 
-  if (feed.data && feed.data.length) {
+  const feed = useSWR<Thanks[]>("/api/feed", fetchJson, autoRefresh);
+
+  if (players.isLoading || feed.isLoading) {
+    return <PlaceholderLoading />;
+  }
+
+  if (players.error || feed.error) {
+    return <PlaceholderError />;
+  }
+
+  if (feed.data?.length) {
     return (
       <SplitFeedView feed={feed.data}>
         <Scoreboard
@@ -36,8 +46,10 @@ export default function ScoreboardPage(_: never) {
       </SplitFeedView>
     );
   }
-  if (players.data && players.data.length) {
+
+  if (players.data?.length) {
     return <Scoreboard players={players.data} useHighscore={false} />;
   }
+
   return <Placeholder />;
 }
