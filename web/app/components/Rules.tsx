@@ -3,6 +3,79 @@ import type { ReactNode } from "react";
 import { InlineQuote } from "~/app/components/Quote";
 import { DepositBadge } from "~/app/components/DepositBadge";
 
+export function TokenTable() {
+  return (
+    <div className="p-6">
+      <table className={"pretty-table"}>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Points</th>
+            <th>Bonus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🌮</td>
+            <td>+1</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>🍻</td>
+            <td>+1</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>☕️</td>
+            <td>+1</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>🎃</td>
+            <td>+1</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>🍀</td>
+            <td>+1</td>
+            <td>+20% luck</td>
+          </tr>
+          <tr>
+            <td>🌶️</td>
+            <td>+3</td>
+            <td>+1% bonus</td>
+          </tr>
+          <tr>
+            <td>🔥</td>
+            <td>+7</td>
+            <td>+20% bonus</td>
+          </tr>
+          <tr>
+            <td>🍉</td>
+            <td>+13</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>🎁</td>
+            <td>+0</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>💀</td>
+            <td>-5</td>
+            <td>-10% penalty</td>
+          </tr>
+          <tr>
+            <td>🏷️</td>
+            <td>+0</td>
+            <td>None</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function Rules() {
   return (
     <div className="p-6">
