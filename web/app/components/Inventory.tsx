@@ -6,7 +6,7 @@ const ABOUT = {
   "☕️": "coffee: +1 point",
   "🎃": "pumpkin: +1 point",
   "🍀": "clover: +1 point, +20% luck bonus",
-  "🌶️": "pepper: +1 point, +1% score bonus",
+  "🌶️": "pepper: +3 points, +1% score bonus",
   "🔥": "fire: +7 points, +20% score bonus",
   "🍉": "watermelon: +13 points",
   "🎁": "mystery box: +0 points",
