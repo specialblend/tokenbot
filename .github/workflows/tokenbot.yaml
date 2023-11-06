@@ -21,10 +21,11 @@ jobs:
       IMAGE: tokenbot/web
       CONTEXT_PATH: ./
       DOCKERFILE_PATH: ./web.Dockerfile
+      CHART_PATH: ./charts/tokenbot
       BUILD_CODE_ON_RELEASE: true
       PACKAGE_CHART_ON_RELEASE: true
       SKIP_IMAGE: false
-      SKIP_CHART: true
+      SKIP_CHART: false
       SKIP_ARGOCD: true
     secrets: inherit
 
@@ -50,8 +51,8 @@ jobs:
     with:
       SKIP_IMAGE: true
       SKIP_CHART: true
-      SKIP_ARGOCD: true
-      CHART_PATH: ./charts/coal
+      SKIP_ARGOCD: false
+      CHART_PATH: ./charts/tokenbot
       ARGOCD_APP_NAME: gke-codeathon-development.tokenbot
       ARGOCD_RELEASE_NAME: tokenbot
       ARGOCD_PROJECT: tokenbot
