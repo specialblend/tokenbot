@@ -24,7 +24,7 @@ bot:
     data:
       SLACK_CLIENT_ID: "4634376417136.5392353165376"
       SLACK_TEAM_ID: "T04JNB2C940"
-      REDIS_HOST: "tokenbot-redis-headless.tokenbot.svc.cluster.local"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
 
   secrets:
     tokenbot-bot-secrets:
@@ -45,29 +45,35 @@ web:
     data:
       SLACK_CLIENT_ID: "4634376417136.5392353165376"
       SLACK_TEAM_ID: "T04JNB2C940"
-      REDIS_HOST: "tokenbot-redis-headless.tokenbot.svc.cluster.local"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
+      NEXTAUTH_URL: "https://tokenbot.dev-cyderes.io/api/auth"
 
   secrets:
     tokenbot-web-secrets:
       SLACK_APP_TOKEN: tokenbot_slack-app-token
       SLACK_BOT_TOKEN: tokenbot_slack-bot-token
       SLACK_CLIENT_SECRET: tokenbot_slack-client-secret
+      NEXTAUTH_SECRET: tokenbot_nextauth-secret
+
+redis:
+  auth:
+    enabled: false
 
 ingress:
   enabled: true
   className: "nginx"
   annotations:
-    nginx.ingress.kubernetes.io/auth-response-headers: X-Vouch-User
-    nginx.ingress.kubernetes.io/auth-signin: https://vouch-proxy.dev-cyderes.io/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err
-    nginx.ingress.kubernetes.io/auth-snippet:
-      "auth_request_set $auth_resp_jwt $upstream_http_x_vouch_jwt;
+    # nginx.ingress.kubernetes.io/auth-response-headers: X-Vouch-User
+    # nginx.ingress.kubernetes.io/auth-signin: https://vouch-proxy.dev-cyderes.io/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err
+    # nginx.ingress.kubernetes.io/auth-snippet:
+    #   "auth_request_set $auth_resp_jwt $upstream_http_x_vouch_jwt;
 
-      auth_request_set $auth_resp_err $upstream_http_x_vouch_err;
+    #   auth_request_set $auth_resp_err $upstream_http_x_vouch_err;
 
-      auth_request_set $auth_resp_failcount $upstream_http_x_vouch_failcount;
+    #   auth_request_set $auth_resp_failcount $upstream_http_x_vouch_failcount;
 
-      "
-    nginx.ingress.kubernetes.io/auth-url: https://vouch-proxy.dev-cyderes.io/validate
+    #   "
+    # nginx.ingress.kubernetes.io/auth-url: https://vouch-proxy.dev-cyderes.io/validate
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
     - host: tokenbot.dev-cyderes.io
