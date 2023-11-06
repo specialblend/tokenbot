@@ -34,7 +34,7 @@ jobs:
     name: "Tokenbot (Bot)"
     uses: FishtechCSOC/github-actions/.github/workflows/standard-pipeline.yaml@main
     with:
-      IMAGE: tokenbot/web
+      IMAGE: tokenbot/bot
       CONTEXT_PATH: ./
       DOCKERFILE_PATH: ./bot.Dockerfile
       BUILD_CODE_ON_RELEASE: true
