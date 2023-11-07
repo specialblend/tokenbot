@@ -58,13 +58,6 @@ web:
 redis:
   auth:
     enabled: false
-  master:
-    sidecars:
-    - name: backup
-      image: ubuntu-redis
-      imagePullPolicy: Always
-      command: ['sh', '-c', 'echo "hello world"']
-
 
 ingress:
   enabled: true
