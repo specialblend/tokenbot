@@ -1,22 +1,27 @@
 import type { Item } from "~/contract";
 
 const ABOUT = {
-  "🌮": "taco: +1 point",
-  "🍻": "beer: +1 point",
-  "☕️": "coffee: +1 point",
-  "🎃": "pumpkin: +1 point",
-  "🍀": "clover: +1 point, +20% luck bonus",
-  "🌶️": "pepper: +3 points, +1% score bonus",
-  "🔥": "fire: +7 points, +20% score bonus",
-  "🍉": "watermelon: +13 points",
-  "🎁": "mystery box: +0 points",
-  "💀": "skull: -5 points, -10% score penalty",
-  "🏷️": "receipt: +0 points",
+  "🌮": "+1 pts",
+  "🍻": "+1 pts",
+  "☕️": "+1 pts",
+  "🎃": "+1 pts",
+  "🍉": "+13 pts",
+  "🎁": "+0 pts",
+  "🏷️": "+0 pts",
+  "🍀": "+1 pts, +20% luck bonus",
+  "🌶️": "+3 pts, +1% score bonus",
+  "🔥": "+7 pts, +20% score bonus",
+  "💀": "-5 pts, -10% score penalty",
 };
+
+function about(token: string) {
+  const about_ = ABOUT[token as keyof typeof ABOUT];
+  return `${token} ${about_ || ""}`;
+}
 
 export function ItemBadge({ item: [token, qty] }: { item: Item }) {
   return (
-    <abbr title={ABOUT[token as keyof typeof ABOUT] || "token"}>
+    <abbr title={about(token)}>
       <span className="text-2xl">{token}</span>
       <span className="px-1 text-sm">{qty}</span>
     </abbr>
