@@ -61,5 +61,5 @@ jobs:
       ARGOCD_DEST_SERVER_DEV: gke-codeathon-development
       ARGOCD_API_URL_DEV: argocd.dev-cyderes.io
       ARGOCD_VALUES_FILE_DEV: values-dev.yaml
-      ARGOCD_DEPLOYMENT_RESTART: false
+      ARGOCD_DEPLOYMENT_RESTART: true
     secrets: inherit
