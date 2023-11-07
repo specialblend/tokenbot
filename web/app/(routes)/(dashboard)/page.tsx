@@ -21,10 +21,7 @@ const autoRefresh = {
 const fetchJson = (url: string) => fetch(url).then((r) => r.json());
 
 export default function ScoreboardPage(_: never) {
-  const me = useSWR<Player>("/api/me", fetchJson);
-
   const players = useSWR<Player[]>("/api/score", fetchJson, autoRefresh);
-
   const feed = useSWR<Thanks[]>("/api/feed", fetchJson, autoRefresh);
 
   if (players.isLoading || feed.isLoading) {
@@ -38,11 +35,7 @@ export default function ScoreboardPage(_: never) {
   if (feed.data?.length) {
     return (
       <SplitFeedView feed={feed.data}>
-        <Scoreboard
-          me={me.data}
-          players={players.data ?? []}
-          useHighscore={false}
-        />
+        <Scoreboard players={players.data ?? []} useHighscore={false} />
       </SplitFeedView>
     );
   }

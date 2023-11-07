@@ -30,53 +30,9 @@ function Score({
   );
 }
 
-function SubScore({
-  score,
-  children,
-  className,
-}: {
-  score: number;
-  children?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <div className="pr-8 pb-4">
-        <div className={`text-4xl ${JetBrainsMono.className}`}>{score}</div>
-        <div className="ink-muted text-lg">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function CompoundScore({
-  base,
-  bonus,
-  children,
-  className,
-}: {
-  base: number;
-  bonus: number;
-  children?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <div className="pr-8 pb-4">
-        <div className={`text-8xl ${JetBrainsMono.className}`}>
-          {base}
-          <span className={`text-3xl text-green-500`}>(+{bonus})</span>
-        </div>
-        <div className="ink-muted text-lg">{children}</div>
-      </div>
-    </div>
-  );
-}
-
 function Scores({
   score,
   highscore,
-  scores,
 }: {
   score: number;
   highscore: number;
