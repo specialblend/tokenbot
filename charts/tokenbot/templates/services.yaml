@@ -6,6 +6,7 @@ metadata:
   name: {{ include "tokenbot.fullname" $ }}-web
   labels:
     {{- include "tokenbot.labels" $ | nindent 4 }}
+    {{ .service.selectorLabels | toYaml | nindent 4 }}
 spec:
   type: {{ .service.type }}
   ports:
@@ -13,6 +14,13 @@ spec:
       targetPort: web
       protocol: TCP
       name: web
+{{- if .Values.metrics.enabled }}
+    - port: 9090
+      path: /metrics
+      targetPort: web
+      protocol: TCP
+      name: metrics
+{{- end }}
   selector:
     {{- include "tokenbot.selectorLabels" $ | nindent 4 -}}
     {{ .service.selectorLabels | toYaml | nindent 4 }}

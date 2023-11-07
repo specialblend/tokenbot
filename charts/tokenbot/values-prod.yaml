@@ -71,6 +71,16 @@ redis:
     redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
     schedule: "30 * * * *"
 
+metrics:
+  enabled: true
+  labels:
+    release: prometheus-infra
+  interval: 60s
+  timeout: 10s
+  namespaceSelector:
+    matchNames:
+      - tokenbot
+
 ingress:
   enabled: true
   className: "nginx"

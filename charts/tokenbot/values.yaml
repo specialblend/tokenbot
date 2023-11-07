@@ -17,7 +17,7 @@ fullnameOverride: ""
 bot:
   replicaCount: 1
   selectorLabels:
-    component: server
+    component: bot
   containers:
     bot:
       image:
@@ -99,7 +99,7 @@ bot:
 web:
   replicaCount: 1
   selectorLabels:
-    component: client
+    component: web
   containers:
     web:
       image:
@@ -149,7 +149,7 @@ web:
     type: ClusterIP
     port: 80
     selectorLabels:
-      component: client
+      component: web
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -195,6 +195,16 @@ redis:
     gcsBucket: cyderes-redis-bkup-development
     redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
     schedule: "30 * * * *"
+
+metrics:
+  enabled: false
+  labels:
+    release: prometheus-infra
+  interval: 60s
+  timeout: 10s
+  namespaceSelector:
+    matchNames:
+      - tokenbot
 
 ingress:
   enabled: false
