@@ -36,6 +36,9 @@ Common labels
 {{- define "tokenbot.labels" -}}
 helm.sh/chart: {{ include "tokenbot.chart" . }}
 {{ include "tokenbot.selectorLabels" . }}
+{{- if .Values.commonLabels }}
+{{ .Values.commonLabels | toYaml }}
+{{- end }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
