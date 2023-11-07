@@ -22,8 +22,8 @@ bot:
   configMap:
     name: tokenbot-bot-cm
     data:
-      SLACK_CLIENT_ID: "4634376417136.5392353165376"
-      SLACK_TEAM_ID: "T04JNB2C940"
+      SLACK_CLIENT_ID: "205914147717.5414713863696"
+      SLACK_TEAM_ID: "T61SW4BM3"
       REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
 
   secrets:
@@ -43,8 +43,8 @@ web:
   configMap:
     name: tokenbot-web-cm
     data:
-      SLACK_CLIENT_ID: "4634376417136.5392353165376"
-      SLACK_TEAM_ID: "T04JNB2C940"
+      SLACK_CLIENT_ID: "205914147717.5414713863696"
+      SLACK_TEAM_ID: "T61SW4BM3"
       REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
       NEXTAUTH_URL: "https://thanks.cyderes.io/api/auth"
 
