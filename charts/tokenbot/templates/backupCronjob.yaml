@@ -58,7 +58,7 @@ spec:
             name: redis-dump
           - name: redis-bkup
             secret:
-              defaultMode: 360
+              defaultMode: 0755
               secretName: redis-bkup
   schedule: {{ .Values.redis.backup.schedule | default "30 * * * *" }}
   successfulJobsHistoryLimit: 1
