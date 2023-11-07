@@ -34,6 +34,7 @@ COPY --from=web_build /tokenbot/web/node_modules ./node_modules
 COPY --from=web_build /tokenbot/web/package.json .
 COPY --from=web_build /tokenbot/web/next.config.js .
 COPY --from=web_build /tokenbot/web/.next ./.next
+COPY --from=web_build /tokenbot/web/server.js ./server.js
 COPY --from=web_build /tokenbot/web/public ./public
 COPY --from=ocaml_build /home/opam/engine/_build/default/bin/tokenbot.exe ./bin/tokenbot.exe
 
@@ -41,5 +42,4 @@ RUN addgroup -S tokenbot && adduser -S tokenbot -G tokenbot
 USER tokenbot
 
 CMD ["npm", "start"]
-
 

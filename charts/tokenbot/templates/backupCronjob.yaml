@@ -1,0 +1,66 @@
+{{- if .Values.redis.backup.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "tokenbot.name" . }}-redis-backup-cronjob
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - sh
+            - /data/scripts/gcs-upload.sh
+            image: google/cloud-sdk
+            imagePullPolicy: IfNotPresent
+            name: gcloud-sdk
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /data/redis-dump
+              name: redis-dump
+            - mountPath: /data/scripts
+              name: redis-bkp
+          dnsPolicy: ClusterFirst
+          initContainers:
+          - args:
+            - -c
+            - /data/scripts/redis-dump.sh
+            command:
+            - /bin/sh
+            image: ubuntu/redis:latest
+            imagePullPolicy: Always
+            name: redis-cli
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /data/redis-dump
+              name: redis-dump
+            - mountPath: /data/scripts
+              name: redis-bkp
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          serviceAccount: {{ include "tokenbot.serviceAccountName" . }}
+          serviceAccountName: {{ include "tokenbot.serviceAccountName" . }}
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - emptyDir: {}
+            name: redis-dump
+          - name: redis-bkp
+            secret:
+              defaultMode: 420
+              secretName: redis-bkp
+  schedule: {{ .Values.redis.backup.schedule | default "30 * * * *" }}
+  successfulJobsHistoryLimit: 1
+  suspend: false
+{{- end -}}
