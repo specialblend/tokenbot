@@ -1,7 +1,7 @@
 import type { Player, PlayerId, Thanks } from "~/contract";
 
 import { slack } from "~/io/slack";
-import { red, scanKeys } from "~/io/red";
+import { red } from "~/io/red";
 
 const isset = <T>(x: T | null | undefined): x is T => !!x;
 
