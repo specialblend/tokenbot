@@ -17,7 +17,7 @@ bot:
       image:
         repository: us-central1-docker.pkg.dev/cyderes-prod/cyderes-container-repo/tokenbot/bot
         pullPolicy: Always
-        tag: "latest"
+        tag: ""
 
   configMap:
     name: tokenbot-bot-cm
@@ -38,7 +38,7 @@ web:
       image:
         repository: us-central1-docker.pkg.dev/cyderes-prod/cyderes-container-repo/tokenbot/web
         pullPolicy: Always
-        tag: "latest"
+        tag: ""
 
   configMap:
     name: tokenbot-web-cm
