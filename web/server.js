@@ -1,11 +1,11 @@
-const express = require('express');
-const next = require('next');
+const express = require("express");
+const next = require("next");
+const Redis = require("ioredis");
+
 const {
-    collectDefaultMetrics,
     Registry,
     Gauge,
-} = require('prom-client');
-const Redis = require('ioredis');
+} = require("prom-client");
 
 const hostname = "localhost";
 const port = parseInt(process.env.PORT, 10) || 3000;
@@ -18,7 +18,7 @@ const nextApp = next({
 
 function App() {
     const app = express();
-    app.all('*', nextApp.getRequestHandler());
+    app.all("*", nextApp.getRequestHandler());
     return app;
 }
 
@@ -51,8 +51,10 @@ function Metrics() {
         host: process.env.REDIS_HOST || "localhost",
     })
 
-    collectDefaultMetrics({ register });
-
+    function scanPlayers() {
+        console.log("scanning players...");
+        return scanJson("player:*", db);
+    }
 
     void new Gauge({
         name: "tokenbot_players",
@@ -61,7 +63,7 @@ function Metrics() {
         labelNames: ["uid", "username"],
         async collect() {
             this.reset();
-            const players = await scanJson("player:*", db)
+            const players = await scanPlayers();
             players.forEach(player => {
                 this.labels({ uid: player.id, username: player.name, }).inc();
             });
@@ -75,7 +77,7 @@ function Metrics() {
         labelNames: ["token", "uid"],
         async collect() {
             this.reset();
-            const players = await scanJson("player:*", db)
+            const players = await scanPlayers();
             players.forEach(player => {
                 player.items.forEach(([token, qty]) => {
                     const uid = player.id;
@@ -92,7 +94,7 @@ function Metrics() {
         labelNames: ["uid", "name", "score_type"],
         async collect() {
             this.reset();
-            const players = await scanJson("player:*", db)
+            const players = await scanPlayers();
             players.forEach(player => {
                this.labels({
                    uid: player.id,
@@ -122,7 +124,7 @@ function Metrics() {
         labelNames: ["uid", "name"],
         async collect() {
             this.reset();
-            const players = await scanJson("player:*", db)
+            const players = await scanPlayers();
             players.forEach(player => {
                 this.labels({
                     uid: player.id,
