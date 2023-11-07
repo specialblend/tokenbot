@@ -187,6 +187,14 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+redis:
+  auth:
+    enabled: false
+  backup:
+    enabled: false
+    gcsBucket: cyderes-redis-bkup-development
+    redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
+
 ingress:
   enabled: false
   className: ""

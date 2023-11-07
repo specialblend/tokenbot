@@ -58,6 +58,10 @@ web:
 redis:
   auth:
     enabled: false
+  backup:
+    enabled: true
+    gcsBucket: cyderes-redis-bkup-production
+    redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
 
 ingress:
   enabled: true
