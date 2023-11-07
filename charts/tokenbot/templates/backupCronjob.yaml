@@ -60,7 +60,7 @@ spec:
             secret:
               defaultMode: 420
               secretName: redis-bkp
-  schedule: 30 * * * *
+  schedule: {{ .Values.redis.backup.schedule | default "30 * * * *" }}
   successfulJobsHistoryLimit: 1
   suspend: false
 {{- end -}}

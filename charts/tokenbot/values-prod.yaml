@@ -62,6 +62,7 @@ redis:
     enabled: true
     gcsBucket: cyderes-redis-bkup-production
     redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
+    schedule: "30 * * * *"
 
 ingress:
   enabled: true

@@ -194,6 +194,7 @@ redis:
     enabled: false
     gcsBucket: cyderes-redis-bkup-development
     redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
+    schedule: "30 * * * *"
 
 ingress:
   enabled: false
