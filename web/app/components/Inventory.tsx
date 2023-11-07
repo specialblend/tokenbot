@@ -6,17 +6,17 @@ const ABOUT = {
   "☕️": "+1 pts",
   "🎃": "+1 pts",
   "🍉": "+13 pts",
-  "🎁": "+0 pts",
-  "🏷️": "+0 pts",
   "🍀": "+1 pts, +20% luck bonus",
   "🌶️": "+3 pts, +1% score bonus",
   "🔥": "+7 pts, +20% score bonus",
   "💀": "-5 pts, -10% score penalty",
 };
 
+const DEFAULT_ABOUT = "+0 pts";
+
 function about(token: string) {
   const about_ = ABOUT[token as keyof typeof ABOUT];
-  return `${token} ${about_ || ""}`;
+  return `${token} ${about_ || DEFAULT_ABOUT}`;
 }
 
 export function ItemBadge({ item: [token, qty] }: { item: Item }) {
