@@ -43,7 +43,7 @@ async function scanJson(pattern, db) {
     return [];
 }
 
-function Metrics() {
+async function Metrics() {
     const app = express();
     const register = new Registry();
 
@@ -53,49 +53,79 @@ function Metrics() {
 
     collectDefaultMetrics({ register });
 
-    const players_gauge = new Gauge({
+    const players = await scanJson("player:*", db)
+
+    void new Gauge({
         name: "tokenbot_players",
         registers: [register],
         help: "players",
         labelNames: ["uid", "username"],
         async collect() {
             this.reset();
-
-            const players = await scanJson("player:*", db)
-
             players.forEach(player => {
                 this.labels({ uid: player.id, username: player.name, }).inc();
             });
         }
     });
 
-    const tokens = new Gauge({
+    void new Gauge({
         name: "tokenbot_items",
         registers: [register],
         help: "player inventory",
-        labelNames: ["token", "qty"],
+        labelNames: ["token", "uid"],
         async collect() {
-
+            this.reset();
+            players.forEach(player => {
+                player.items.forEach(([token, qty]) => {
+                    const uid = player.id;
+                    this.labels({ token, uid }).inc(qty);
+                })
+            });
         }
     });
 
-    const total_scores = new Gauge({
-        name: "total_score",
+    void new Gauge({
+        name: "current_score",
         registers: [register],
         help: "player current score",
-        labelNames: ["uid", "name"],
+        labelNames: ["uid", "name", "score_type"],
         async collect() {
+            this.reset();
+            players.forEach(player => {
+               this.labels({
+                   uid: player.id,
+                   name: player.name,
+                   score_type: "base"
+               }).set(player.score.base)
 
+                this.labels({
+                    uid: player.id,
+                    name: player.name,
+                    score_type: "bonus"
+                }).set(player.score.bonus)
+
+                this.labels({
+                    uid: player.id,
+                    name: player.name,
+                    score_type: "total"
+                }).set(player.score.total)
+            });
         }
     });
 
-    const high_scores = new Gauge({
+   void new Gauge({
         name: "high_score",
         registers: [register],
         help: "player all-time high score",
         labelNames: ["uid", "name"],
         async collect() {
-
+            this.reset();
+            players.forEach(player => {
+                this.labels({
+                    uid: player.id,
+                    name: player.name,
+                }).set(player.highscore)
+            });
         }
     });
 
@@ -111,6 +141,6 @@ nextApp
     .prepare()
     .then(() => App().listen(port))
     .then(() => console.log(`app ready at http://${hostname}:${port}`))
-    .then(() => Metrics().listen(9090))
+    .then(async () => (await Metrics()).listen(9090))
     .then(() => console.log(`metrics ready at http://${hostname}:${9090}`))
     .catch(console.error);
