@@ -14,7 +14,7 @@ commonLabels:
   cy_dept_group: "web"
 
 bot:
-  replicaCount: 2
+  replicaCount: 1
   containers:
     bot:
       image:
