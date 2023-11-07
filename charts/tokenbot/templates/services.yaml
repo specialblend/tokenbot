@@ -16,7 +16,6 @@ spec:
       name: web
 {{- if $.Values.metrics.enabled }}
     - port: 9090
-      path: /metrics
       targetPort: metrics
       protocol: TCP
       name: metrics
