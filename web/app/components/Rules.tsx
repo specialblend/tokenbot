@@ -3,79 +3,6 @@ import type { ReactNode } from "react";
 import { InlineQuote } from "~/app/components/Quote";
 import { DepositBadge } from "~/app/components/DepositBadge";
 
-export function TokenTable() {
-  return (
-    <div className="p-6">
-      <table className={"pretty-table"}>
-        <thead>
-          <tr>
-            <th>Token</th>
-            <th>Points</th>
-            <th>Bonus</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>🌮</td>
-            <td>+1</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>🍻</td>
-            <td>+1</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>☕️</td>
-            <td>+1</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>🎃</td>
-            <td>+1</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>🍀</td>
-            <td>+1</td>
-            <td>+20% luck</td>
-          </tr>
-          <tr>
-            <td>🌶️</td>
-            <td>+3</td>
-            <td>+1% bonus</td>
-          </tr>
-          <tr>
-            <td>🔥</td>
-            <td>+7</td>
-            <td>+20% bonus</td>
-          </tr>
-          <tr>
-            <td>🍉</td>
-            <td>+13</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>🎁</td>
-            <td>+0</td>
-            <td>None</td>
-          </tr>
-          <tr>
-            <td>💀</td>
-            <td>-5</td>
-            <td>-10% penalty</td>
-          </tr>
-          <tr>
-            <td>🏷️</td>
-            <td>+0</td>
-            <td>None</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export function Rules() {
   return (
     <div className="p-6">
@@ -148,6 +75,86 @@ export function Rules() {
       />
 
       <Graph
+        left={<DepositBadge token="🌮" qty={1} />}
+        right={<span className="ink-base text-base">+1 point</span>}
+        label="Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🍻" qty={1} />}
+        right={<span className="ink-base text-base">+1 point</span>}
+        label="Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="☕️" qty={1} />}
+        right={<span className="ink-base text-base">+1 point</span>}
+        label="Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🎃" qty={1} />}
+        right={<span className="ink-base text-base">+1 point</span>}
+        label="Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🍉" qty={1} />}
+        right={<span className="ink-base text-base">+13 points</span>}
+        label="Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🌶️" qty={1} />}
+        right={
+          <>
+            <span className="ink-base text-base">+3 points</span>
+
+            <Plus />
+            <span className="ink-base text-base">+1% score</span>
+          </>
+        }
+        label="Special Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🔥" qty={1} />}
+        right={
+          <>
+            <span className="ink-base text-base">+7 points</span>
+
+            <Plus />
+            <span className="ink-base text-base">+20% score</span>
+          </>
+        }
+        label="Special Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="🍀" qty={1} />}
+        right={
+          <>
+            <span className="ink-base text-base">+1 point</span>
+            <Plus />
+            <span className="ink-base text-base">+20% luck</span>
+          </>
+        }
+        label="Special Token"
+      />
+
+      <Graph
+        left={<DepositBadge token="💀" qty={1} />}
+        right={
+          <>
+            <span className="ink-base text-base">-5 points</span>
+            <Plus />
+            <span className="ink-base text-base">-10% score</span>
+          </>
+        }
+        label="Special Token"
+      />
+
+      <Graph
         left={<DepositBadge token="🌮" qty={50} />}
         right={<DepositBadge token="🔥" qty={1} />}
         label="Token Exchange"
@@ -187,30 +194,6 @@ export function Rules() {
         left={<DepositBadge token="⚠️" qty={3} />}
         right={<DepositBadge token="💀" qty={1} />}
         label="Token Exchange"
-      />
-
-      <Graph
-        left={<DepositBadge token="🌶️" qty={1} />}
-        right={<span className="ink-base text-base">+1% score</span>}
-        label="Token Bonus"
-      />
-
-      <Graph
-        left={<DepositBadge token="🔥" qty={1} />}
-        right={<span className="ink-base text-base">+20% score</span>}
-        label="Token Bonus"
-      />
-
-      <Graph
-        left={<DepositBadge token="🍀" qty={1} />}
-        right={<span className="ink-base text-base">+20% luck</span>}
-        label="Token Bonus"
-      />
-
-      <Graph
-        left={<DepositBadge token="💀" qty={1} />}
-        right={<span className="ink-base text-base">-20% score</span>}
-        label="Token Penalty"
       />
     </div>
   );
