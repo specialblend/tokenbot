@@ -14,10 +14,10 @@ spec:
       targetPort: web
       protocol: TCP
       name: web
-{{- if .Values.metrics.enabled }}
+{{- if $.Values.metrics.enabled }}
     - port: 9090
       path: /metrics
-      targetPort: web
+      targetPort: metrics
       protocol: TCP
       name: metrics
 {{- end }}

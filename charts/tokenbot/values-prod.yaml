@@ -10,6 +10,9 @@ image:
 imagePullSecrets:
   - name: gcr-json-key
 
+commonLabels:
+  cy_dept_group: "web"
+
 bot:
   replicaCount: 2
   containers:
