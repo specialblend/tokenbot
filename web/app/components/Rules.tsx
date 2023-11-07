@@ -78,7 +78,7 @@ export function TokenTable() {
 
 export function Rules() {
   return (
-    <div className="p-6">
+    <div className="p-8">
       <Graph
         label="Send thanks in Slack"
         left={<InlineQuote>@thanks @alice</InlineQuote>}
