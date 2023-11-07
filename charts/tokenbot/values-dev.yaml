@@ -10,6 +10,9 @@ image:
 imagePullSecrets:
   - name: gcr-json-key
 
+commonLabels:
+  cy_dept_group: "web"
+
 bot:
   replicaCount: 1
   containers:
@@ -70,6 +73,16 @@ redis:
     gcsBucket: cyderes-redis-bkup-development
     redisHost: tokenbot-redis-master.tokenbot.svc.cluster.local
     schedule: "30 * * * *"
+
+metrics:
+  enabled: true
+  labels:
+    release: prometheus-infra
+  interval: 60s
+  timeout: 10s
+  namespaceSelector:
+    matchNames:
+      - tokenbot
 
 ingress:
   enabled: true
