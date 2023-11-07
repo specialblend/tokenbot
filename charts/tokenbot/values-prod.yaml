@@ -1,0 +1,86 @@
+environment: production
+
+
+image:
+  repository: us-central1-docker.pkg.dev/cyderes-prod/cyderes-container-repo/tokenbot/bot
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets:
+  - name: gcr-json-key
+
+bot:
+  replicaCount: 2
+  containers:
+    bot:
+      image:
+        repository: us-central1-docker.pkg.dev/cyderes-prod/cyderes-container-repo/tokenbot/bot
+        pullPolicy: Always
+        tag: ""
+
+  configMap:
+    name: tokenbot-bot-cm
+    data:
+      SLACK_CLIENT_ID: "205914147717.5414713863696"
+      SLACK_TEAM_ID: "T61SW4BM3"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
+
+  secrets:
+    tokenbot-bot-secrets:
+      SLACK_APP_TOKEN: tokenbot_slack-app-token
+      SLACK_BOT_TOKEN: tokenbot_slack-bot-token
+
+web:
+  replicaCount: 2
+  containers:
+    web:
+      image:
+        repository: us-central1-docker.pkg.dev/cyderes-prod/cyderes-container-repo/tokenbot/web
+        pullPolicy: Always
+        tag: ""
+
+  configMap:
+    name: tokenbot-web-cm
+    data:
+      SLACK_CLIENT_ID: "205914147717.5414713863696"
+      SLACK_TEAM_ID: "T61SW4BM3"
+      REDIS_HOST: "tokenbot-redis-master.tokenbot.svc.cluster.local"
+      NEXTAUTH_URL: "https://thanks.cyderes.io/api/auth"
+
+  secrets:
+    tokenbot-web-secrets:
+      SLACK_APP_TOKEN: tokenbot_slack-app-token
+      SLACK_BOT_TOKEN: tokenbot_slack-bot-token
+      SLACK_CLIENT_SECRET: tokenbot_slack-client-secret
+      NEXTAUTH_SECRET: tokenbot_nextauth-secret
+
+redis:
+  auth:
+    enabled: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    # nginx.ingress.kubernetes.io/auth-response-headers: X-Vouch-User
+    # nginx.ingress.kubernetes.io/auth-signin: https://vouch-proxy.dev-cyderes.io/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err
+    # nginx.ingress.kubernetes.io/auth-snippet:
+    #   "auth_request_set $auth_resp_jwt $upstream_http_x_vouch_jwt;
+
+    #   auth_request_set $auth_resp_err $upstream_http_x_vouch_err;
+
+    #   auth_request_set $auth_resp_failcount $upstream_http_x_vouch_failcount;
+
+    #   "
+    # nginx.ingress.kubernetes.io/auth-url: https://vouch-proxy.dev-cyderes.io/validate
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: thanks.cyderes.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+   - secretName: tokenbot-web-tls
+     hosts:
+       - thanks.cyderes.io

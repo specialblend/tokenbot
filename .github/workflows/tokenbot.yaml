@@ -9,8 +9,8 @@ on:
     branches:
       - main
 
-  # release:
-  #   types: [published]
+  release:
+    types: [published]
 
 jobs:
 
@@ -59,7 +59,10 @@ jobs:
       ARGOCD_PROJECT: tokenbot
       ARGOCD_DEST_NAMESPACE: tokenbot
       ARGOCD_DEST_SERVER_DEV: gke-codeathon-development
+      ARGOCD_DEST_SERVER_PROD: in-cluster
       ARGOCD_API_URL_DEV: argocd.dev-cyderes.io
+      ARGOCD_API_URL_PROD: argocd.cyderes.io
       ARGOCD_VALUES_FILE_DEV: values-dev.yaml
+      ARGOCD_VALUES_FILE_PROD: values-prod.yaml
       ARGOCD_DEPLOYMENT_RESTART: true
     secrets: inherit
