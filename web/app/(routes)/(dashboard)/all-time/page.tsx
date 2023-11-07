@@ -36,19 +36,13 @@ export default function AllTimeScoreboardPage(_: never) {
   if (feed.data && feed.data.length) {
     return (
       <SplitFeedView feed={feed.data}>
-        <Scoreboard
-          me={me.data}
-          players={players.data ?? []}
-          useHighscore={true}
-        />
+        <Scoreboard players={players.data ?? []} useHighscore={true} />
       </SplitFeedView>
     );
   }
 
   if (players.data && players.data.length) {
-    return (
-      <Scoreboard me={me.data} players={players.data} useHighscore={true} />
-    );
+    return <Scoreboard players={players.data} useHighscore={true} />;
   }
 
   return <Placeholder />;
