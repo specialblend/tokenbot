@@ -52,7 +52,6 @@ function Metrics() {
     })
 
     function scanPlayers() {
-        console.log("scanning players...");
         return scanJson("player:*", db);
     }
 
