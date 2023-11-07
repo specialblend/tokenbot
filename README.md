@@ -20,10 +20,8 @@ SLACK_BOT_TOKEN="xoxb-example"
 NEXTAUTH_SECRET=changeme
 NEXTAUTH_URL="https://example123.ngrok/api/auth"
 
+SLACK_APP_TOKEN="xapp-example"
 SLACK_BOT_TOKEN="xoxb-example"
-SLACK_CLIENT_ID=example
-SLACK_CLIENT_SECRET=example
-SLACK_TEAM_ID=example
 ```
 
 ### 📦 run inside docker
