@@ -28,7 +28,7 @@ spec:
             - mountPath: /data/redis-dump
               name: redis-dump
             - mountPath: /data/scripts
-              name: redis-bkp
+              name: redis-bkup
           dnsPolicy: ClusterFirst
           initContainers:
           - args:
@@ -46,7 +46,7 @@ spec:
             - mountPath: /data/redis-dump
               name: redis-dump
             - mountPath: /data/scripts
-              name: redis-bkp
+              name: redis-bkup
           restartPolicy: Never
           schedulerName: default-scheduler
           securityContext: {}
@@ -56,10 +56,10 @@ spec:
           volumes:
           - emptyDir: {}
             name: redis-dump
-          - name: redis-bkp
+          - name: redis-bkup
             secret:
-              defaultMode: 420
-              secretName: redis-bkp
+              defaultMode: 0755
+              secretName: redis-bkup
   schedule: {{ .Values.redis.backup.schedule | default "30 * * * *" }}
   successfulJobsHistoryLimit: 1
   suspend: false

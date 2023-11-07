@@ -55,9 +55,16 @@ web:
       SLACK_CLIENT_SECRET: tokenbot_slack-client-secret
       NEXTAUTH_SECRET: tokenbot_nextauth-secret
 
+serviceAccount:
+  annotations:
+    iam.gke.io/gcp-service-account: gcs-svc-tokenbot@cyderes-prod.iam.gserviceaccount.com
+
 redis:
   auth:
     enabled: false
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: gcs-svc-tokenbot@cyderes-prod.iam.gserviceaccount.com
   backup:
     enabled: true
     gcsBucket: cyderes-redis-bkup-production
