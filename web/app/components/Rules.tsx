@@ -5,7 +5,7 @@ import { DepositBadge } from "~/app/components/DepositBadge";
 
 export function Rules() {
   return (
-    <div className="p-6">
+    <div className="p-8">
       <Graph
         label="Send thanks in Slack"
         left={<InlineQuote>@thanks @alice</InlineQuote>}
@@ -180,13 +180,13 @@ export function Rules() {
 
       <Graph
         left={<DepositBadge token="🏷️" qty={100} />}
-        right={<DepositBadge token="❓" qty={5} />}
+        right={<DepositBadge token="🎁" qty={1} />}
         label="Token Exchange"
       />
 
       <Graph
         left={<DepositBadge token="🎁" qty={1} />}
-        right={<DepositBadge token="🎁" qty={1} />}
+        right={<DepositBadge token="❓" qty={5} />}
         label="Token Exchange"
       />
 
