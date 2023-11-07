@@ -43,7 +43,7 @@ async function scanJson(pattern, db) {
     return [];
 }
 
-async function Metrics() {
+function Metrics() {
     const app = express();
     const register = new Registry();
 
@@ -53,7 +53,6 @@ async function Metrics() {
 
     collectDefaultMetrics({ register });
 
-    const players = await scanJson("player:*", db)
 
     void new Gauge({
         name: "tokenbot_players",
@@ -62,6 +61,7 @@ async function Metrics() {
         labelNames: ["uid", "username"],
         async collect() {
             this.reset();
+            const players = await scanJson("player:*", db)
             players.forEach(player => {
                 this.labels({ uid: player.id, username: player.name, }).inc();
             });
@@ -75,6 +75,7 @@ async function Metrics() {
         labelNames: ["token", "uid"],
         async collect() {
             this.reset();
+            const players = await scanJson("player:*", db)
             players.forEach(player => {
                 player.items.forEach(([token, qty]) => {
                     const uid = player.id;
@@ -91,6 +92,7 @@ async function Metrics() {
         labelNames: ["uid", "name", "score_type"],
         async collect() {
             this.reset();
+            const players = await scanJson("player:*", db)
             players.forEach(player => {
                this.labels({
                    uid: player.id,
@@ -120,6 +122,7 @@ async function Metrics() {
         labelNames: ["uid", "name"],
         async collect() {
             this.reset();
+            const players = await scanJson("player:*", db)
             players.forEach(player => {
                 this.labels({
                     uid: player.id,
@@ -141,6 +144,6 @@ nextApp
     .prepare()
     .then(() => App().listen(port))
     .then(() => console.log(`app ready at http://${hostname}:${port}`))
-    .then(async () => (await Metrics()).listen(9090))
+    .then(() => Metrics().listen(9090))
     .then(() => console.log(`metrics ready at http://${hostname}:${9090}`))
     .catch(console.error);
