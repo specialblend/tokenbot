@@ -163,10 +163,12 @@ module Collection = struct
   let redemption thx deposits =
     let _sender, recipients = Thanks.parts thx in
     let tokens = Thanks.tokens thx in
-    let redeem player = Deposit.give player "💀" ~qty:(-1) ~about:"redemption" in
+    let heal player = Deposit.give player "💀" ~qty:(-1) ~about:"redemption" in
     if List.exists (( = ) "❤️") tokens then
       let redemptions =
-        recipients |> List.filter (Player.has_item "💀") |> List.map redeem
+        recipients
+        |> List.filter (Player.has_item "💀")
+        |> List.map (fun player -> heal player)
       in
       deposits @ redemptions
     else
