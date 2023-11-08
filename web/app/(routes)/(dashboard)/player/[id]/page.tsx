@@ -30,7 +30,14 @@ function Score({
   );
 }
 
-function Scores({ score, highscore }: { score: number; highscore: number }) {
+function Scores({
+  score,
+  highscore,
+}: {
+  score: number;
+  highscore: number;
+  scores: { base: number; bonus: number; total: number };
+}) {
   if (score === highscore) {
     return <Score score={score} />;
   }
@@ -75,7 +82,7 @@ export default async function PlayerPage(
           </Block>
           <Block>
             <Header>Score</Header>
-            <Scores score={score.total} highscore={highscore} />
+            <Scores scores={score} score={score.total} highscore={highscore} />
           </Block>
           <Block>
             <Header>Stats</Header>

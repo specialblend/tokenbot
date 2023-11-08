@@ -1,6 +1,5 @@
 import type { Player, PlayerId, Thanks } from "~/contract";
 
-import { slack } from "~/io/slack";
 import { red } from "~/io/red";
 
 const isset = <T>(x: T | null | undefined): x is T => !!x;
@@ -9,11 +8,6 @@ const parser =
   <T>() =>
   (x: string) =>
     JSON.parse(x) as T;
-
-export async function getUser(id: string) {
-  const { ok, user } = await slack.users.info({ user: id });
-  if (ok) return user;
-}
 
 export async function getPlayer(id: string) {
   const data = await red().get(`player:${id}`);

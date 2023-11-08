@@ -21,7 +21,7 @@ services:
     environment:
       - REDIS_HOST=redis
     env_file:
-      - web/.env
+      - web/.env.local
     depends_on:
       - redis
     ports:
