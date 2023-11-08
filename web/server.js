@@ -87,7 +87,7 @@ function Metrics() {
     });
 
     void new Gauge({
-        name: "current_score",
+        name: "tokenbot_current_score",
         registers: [register],
         help: "player current score",
         labelNames: ["uid", "name", "score_type"],
@@ -117,7 +117,7 @@ function Metrics() {
     });
 
    void new Gauge({
-        name: "high_score",
+        name: "tokenbot_high_score",
         registers: [register],
         help: "player all-time high score",
         labelNames: ["uid", "name"],
