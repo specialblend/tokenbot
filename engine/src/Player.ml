@@ -48,6 +48,13 @@ module Player = struct
   let luck t = Score.luck t.items
   let total_score = score >> Score.total
 
+  let has_item token t =
+    let item = function
+      | _, 0 -> false
+      | token', _ -> token' = token
+    in
+    t.items |> List.exists item
+
   let part_sender sender_id players =
     match List.partition (id_eq sender_id) players with
     | sender :: _, recipients -> Some (sender, recipients)

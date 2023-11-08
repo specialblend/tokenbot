@@ -1777,3 +1777,36 @@ module Self_penalty_test = struct
         item = ("💀", 1); about = "self-mention penalty"; cooldown = None }
       --- |}]
 end
+
+module Redemption_test = struct
+  let sender = Player.make "example_sender1"
+  let recipient1 = Player.make "example_recipient1" ~items:[ ("💀", 1) ]
+  let recipient2 = Player.make "example_recipient2"
+
+  let%expect_test "no 💀x(-1) when thanks doesn't contain ❤️" =
+    let recipients = [ recipient1; recipient2 ] in
+    let thanks = Thanks.make ~sender ~recipients "example_thanks" in
+    let received = Rules.Collection.redemption thanks [] in
+
+    List.iter print_deposit received;
+
+    [%expect {||}]
+
+  let%expect_test "💀x(-1) when recipient has 💀" =
+    let recipients = [ recipient1; recipient2; sender ] in
+    let thanks =
+      Thanks.make ~sender ~recipients ~tokens:[ "❤️" ] "example_thanks"
+    in
+    let received = Rules.Collection.redemption thanks [] in
+
+    List.iter print_deposit received;
+
+    [%expect {|
+      { player =
+        { id = "example_recipient1"; name = "player"; tz_offset = 0;
+          items = [("💀", 1)]; cooldowns = [];
+          score = { base = 0; bonus = 0; total = 0 }; highscore = 0; luck = 0;
+          is_bot = false };
+        item = ("💀", -1); about = "redemption"; cooldown = None }
+      --- |}]
+end

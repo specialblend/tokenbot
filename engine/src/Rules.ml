@@ -160,6 +160,18 @@ module Collection = struct
     else
       deposits
 
+  let redemption thx deposits =
+    let _sender, recipients = Thanks.parts thx in
+    let tokens = Thanks.tokens thx in
+    let redeem player = Deposit.give player "💀" ~qty:(-1) ~about:"redemption" in
+    if List.exists (( = ) "❤️") tokens then
+      let redemptions =
+        recipients |> List.filter (Player.has_item "💀") |> List.map redeem
+      in
+      deposits @ redemptions
+    else
+      deposits
+
   let init ~dice =
     [
       base;
@@ -171,6 +183,7 @@ module Collection = struct
       lucky ~dice;
       gift_box ~dice;
       self_penalty;
+      redemption;
     ]
 end
 
