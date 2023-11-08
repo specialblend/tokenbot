@@ -47,6 +47,8 @@ module Player = struct
   let cooldown token t = List.assoc_opt token t.cooldowns
   let luck t = Score.luck t.items
   let total_score = score >> Score.total
+  let matches_some token' (token, qty) = token' = token && qty > 0
+  let has_item token t = List.exists (matches_some token) t.items
 
   let part_sender sender_id players =
     match List.partition (id_eq sender_id) players with
